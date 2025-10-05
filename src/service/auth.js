@@ -1,31 +1,18 @@
-import axios from "../libs/axiosInstance";
-import { jwtDecode } from "jwt-decode";
-import localStorageService from "@/utils/localStorageService";
+import publicApi from "./instances/publicApi";
 
-export const loginUser = async (credentials) => {
+export const login = async (data) => {
   try {
-    const res = await axios.post(
-      "/auth/login?getRole=true&getStore=true",
-      credentials
-    );
-    const data = res.data;
-    console.log("Login response data:", data);
-    const token = data.token;
-    const storeId = data.storeId;
-
-    localStorageService.setUserId(data._id);
-    localStorageService.setToken(data.token);
-    localStorageService.setRole(data.role);
-    localStorageService.setStoreId(storeId);
-
-    const decoded = jwtDecode(token);
-
-    return data;
-  } catch (error) {
-    console.error("Login error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
+    const response = await publicApi.post("/auth/login/staff", data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (err) {
+    throw err.response;
   }
 };
+
 export const getOwneStore = async () => {
   try {
     const res = await axios.post("/auth/store");
@@ -41,18 +28,6 @@ export const getOwneStore = async () => {
 export const logoutUser = async () => {
   const res = await axios.get("/auth/logout");
   localStorageService.clearAll();
-};
-
-export const registerStoreOwner = async (storeOwnerData) => {
-  try {
-    const res = await axios.post("/auth/register/store-owner", storeOwnerData);
-    const data = res.data;
-
-    return data;
-  } catch (error) {
-    console.error("Registration error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
-  }
 };
 
 export const checkStoreOwnerEmail = async (email) => {

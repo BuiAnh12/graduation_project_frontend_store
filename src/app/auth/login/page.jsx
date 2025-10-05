@@ -5,8 +5,9 @@ import React, { useEffect, useState } from "react";
 import * as yup from "yup";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
-import { loginUser, getOwneStore, logoutUser } from "@/service/auth";
+import { loginUser, getOwneStore, logoutUser, login } from "@/service/auth";
 import localStorageService from "@/utils/localStorageService";
+import { checkStoreStatus } from "@/service/store";
 
 const Page = () => {
   const router = useRouter();
@@ -19,59 +20,58 @@ const Page = () => {
     password: yup.string().required("Vui lòng nhập mật khẩu!"),
   });
 
-  const checkStoreStatus = async () => {
+  const handleCheckStoreStatus = async (storeId) => {
     try {
-      const storerResult = await getOwneStore();
-      console.log("Store result:", storerResult);
-      const storeData = storerResult.data;
-
-      console.log("Store data:", storeData);
-      if (storeData.status == "APPROVED") {
-        return "APPROVED";
-      } else if (storeData.status == "PENDING") {
-        return "PENDING";
-      } else if (storeData.status == "BLOCKED") {
-        return "BLOCKED";
+      const storerResult = await checkStoreStatus(storeId);
+      if (storerResult.success) {
+        if (storerResult.data === "approved") {
+          return "APPROVED";
+        }
+        if (storerResult.data === "register") {
+          return "PENDING";
+        }
+        if (storerResult.data === "blocked") {
+          return "BLOCKED";
+        }
       }
       if (!storerResult.data || !storerResult.success) {
-        if (storerResult.message == "No store found for this user") {
-          return "NOT_REGISTERED";
-        }
-        toast.error(storerResult.message || "Lỗi khi lấy thông tin cửa hàng!");
-        return "NONE";
+        return "NOT_REGISTERED";
+
+        toast.error("Lỗi không tìm thấy cửa hàng");
       }
     } catch (err) {
       console.error("Error checking store status:", err);
+      return "NONE";
     }
   };
 
-  useEffect(() => {
-    const checkStatus = async () => {
-      const status = await checkStoreStatus();
-      switch (status) {
-        case "APPROVED":
-          router.push("/home");
-          break;
-        case "PENDING":
-          router.push("/auth/verification-pending");
-          break;
-        case "BLOCKED":
-          router.push("/auth/blocked");
-          break;
-        case "NOT_REGISTERED":
-          localStorageService.clearAll();
-          await logoutUser();
-          router.push("/auth/register");
-          break;
-        case "NONE":
-          // No action (let user login)
-          break;
-        default:
-          break;
-      }
-    };
-    checkStatus();
-  }, []);
+  // useEffect(() => {
+  //   const checkStatus = async () => {
+  //     const status = await checkStoreStatus();
+  //     switch (status) {
+  //       case "APPROVED":
+  //         router.push("/home");
+  //         break;
+  //       case "PENDING":
+  //         router.push("/auth/verification-pending");
+  //         break;
+  //       case "BLOCKED":
+  //         router.push("/auth/blocked");
+  //         break;
+  //       case "NOT_REGISTERED":
+  //         localStorageService.clearAll();
+  //         await logoutUser();
+  //         router.push("/auth/register");
+  //         break;
+  //       case "NONE":
+  //         // No action (let user login)
+  //         break;
+  //       default:
+  //         break;
+  //     }
+  //   };
+  //   checkStatus();
+  // }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -81,36 +81,30 @@ const Page = () => {
     validationSchema: schema,
     onSubmit: async (values) => {
       try {
-        const loginResult = await loginUser(values);
-        if (!loginResult.success) {
-          toast.error(loginResult.message || "Đăng nhập thất bại!");
-          return;
-        }
-
-        const status = await checkStoreStatus();
-        switch (status) {
-          case "APPROVED":
-            toast.success("Đăng nhập thành công!");
-            router.push("/home");
-            break;
-          case "PENDING":
-            toast.success("Đăng nhập thành công!");
-            router.push("/auth/verification-pending");
-            break;
-          case "BLOCKED":
-            toast.success("Đăng nhập thành công!");
-            router.push("/auth/blocked");
-            break;
-          case "NOT_REGISTERED":
-            toast.error("Bạn chưa đăng ký cửa hàng!");
-            localStorageService.clearAll();
-            await logoutUser();
-            router.push("/auth/register");
-            break;
-          default:
-            break;
+        const loginResult = await login(values);
+        console.log("Login Result: ", loginResult);
+        if (loginResult.success) {
+          const statusResponse = await checkStoreStatus(
+            loginResult.data.storeId
+          );
+          console.log("Status response: ", statusResponse);
+          if (statusResponse.success) {
+            if (statusResponse.data === "approved") {
+              toast.success("Đăng nhập thành công!");
+              router.push("/home");
+            }
+            if (statusResponse.data === "register") {
+              toast.success("Cửa hàng chưa được duyệt!");
+              router.push("/auth/verification-pending");
+            }
+            if (statusResponse.data === "blocked") {
+              toast.success("Cửa hàng bị khóa!");
+              router.push("/auth/blocked");
+            }
+          }
         }
       } catch (err) {
+        console.log(err);
         toast.error("Đăng nhập thất bại!");
       }
       formik.resetForm();

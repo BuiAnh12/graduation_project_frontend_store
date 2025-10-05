@@ -12,3 +12,17 @@ export const registerStore = async (data) => {
     throw err.response;
   }
 };
+
+export const checkStoreStatus = async (storeId) => {
+  try {
+    const response = await publicApi.get(`/store/${storeId}/status`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (err) {
+    throw err.response;
+  }
+};
+
