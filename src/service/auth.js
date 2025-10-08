@@ -7,6 +7,7 @@ export const login = async (data) => {
         "Content-Type": "application/json",
       },
     });
+    console.log("LOGIN DATA: ", response.data);
     return response.data;
   } catch (err) {
     throw err.response;

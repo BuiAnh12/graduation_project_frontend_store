@@ -60,9 +60,9 @@ const OrderCard = ({ order, orderIndex, refetch }) => {
             {orderIndex}
           </div>
           <div className="ml-2 text-sm text-gray-700">
-            <p className="font-medium text-gray-800">{order.user?.name}</p>
+            <p className="font-medium text-gray-900">{order.users?.name}</p>
             <p>
-              {cartQuantity} Món / {cartPrice.toFixed(0)}đ
+              {cartQuantity} Món /{order.finalTotal}đ
             </p>
           </div>
         </div>

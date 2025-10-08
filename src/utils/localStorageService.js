@@ -14,7 +14,7 @@ const localStorageService = {
     if (isBrowser) localStorage.setItem(USER_ID_KEY, JSON.stringify(userId));
   },
   setToken: (token) => {
-    if (isBrowser) localStorage.setItem(TOKEN_KEY, JSON.stringify(token));
+    if (isBrowser) localStorage.setItem(TOKEN_KEY,token);
   },
   setRole: (role) => {
     if (isBrowser) localStorage.setItem(ROLE_KEY, JSON.stringify(role));

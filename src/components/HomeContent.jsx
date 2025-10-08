@@ -14,7 +14,7 @@ const icons = [
 
 const HomeContent = () => {
   return (
-    <div className="p-5 shadow-md mb-48 mt-12">
+    <div className="p-5 shadow-md mb-48 mt-12 bg-white">
       {/* Responsive grid layout */}
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
         {icons.map((icon, index) => (

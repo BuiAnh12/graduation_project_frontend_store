@@ -20,7 +20,7 @@ const LatestOrder = ({ order }) => {
     };
     return (
         <>
-            <div className="w-full px-4 py-2 mt-20">
+            <div className="w-full px-4 py-2 mt-20 bg-white">
                 <div className="w-full p-4 bg-gray-50">
                     <div className="p-2 bg-yellow-100 text-yellow-800 text-sm rounded-md mb-4">
                         Khách ghi chú:{" "}
@@ -78,7 +78,7 @@ const LatestOrder = ({ order }) => {
                                             {item.quantity} x {item.dishName}
                                         </span>
                                         <span>
-                                            {item.dish.price.toLocaleString()}₫
+                                            {item.price.toLocaleString()}₫
                                         </span>
                                     </li>
                                 ))}

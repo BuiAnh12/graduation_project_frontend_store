@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 
 import { ClipLoader } from "react-spinners";
-import NavBar from "@/components/NavBar";
 import Header from "@/components/Header";
 import Tabs from "@/components/Tabs";
 
@@ -59,7 +58,6 @@ const page = () => {
         />
       </div>
 
-      <NavBar page="orders" />
     </>
   );
 };

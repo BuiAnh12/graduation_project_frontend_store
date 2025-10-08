@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import * as yup from "yup";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
-import { loginUser, getOwneStore, logoutUser, login } from "@/service/auth";
+import { login } from "@/service/auth";
 import localStorageService from "@/utils/localStorageService";
 import { checkStoreStatus } from "@/service/store";
 
@@ -91,6 +91,8 @@ const Page = () => {
           if (statusResponse.success) {
             if (statusResponse.data === "approved") {
               toast.success("Đăng nhập thành công!");
+              localStorageService.setToken(loginResult.data.token);
+              localStorageService.setStoreId(loginResult.data.storeId);
               router.push("/home");
             }
             if (statusResponse.data === "register") {
@@ -119,10 +121,10 @@ const Page = () => {
             Đăng nhập
           </h3>
           <Image
-            src="/assets/logo.jpg"
+            src="/assets/logo.png"
             alt="App logo"
-            height={180}
-            width={180}
+            height={200}
+            width={200}
             className="mb-[10px]"
           />
 
@@ -219,7 +221,7 @@ const Page = () => {
             </button>
             <a
               href="/auth/register"
-              class="text-black hover:underline font-medium mt-9"
+              className="text-black hover:underline font-medium mt-9"
             >
               Đăng ký cửa hàng
             </a>
