@@ -19,6 +19,7 @@ const Step5Confirm = ({
     setLoading(true);
     try {
       const responseAvatar = await uploadImages(files.avatarFile);
+      console.log("response avatar: ", responseAvatar);
       const responseCover = await uploadImages(files.coverFile);
       const responseICFront = await uploadImages(files.ICFrontFile);
       const responseICBack = await uploadImages(files.ICBackFile);
@@ -35,12 +36,12 @@ const Step5Confirm = ({
         BusinessLicenseImage: responseBusinessLicencse._id,
       };
 
-      setData(newData);
+      // setData(newData);
 
       // 2. Format Data
       const convertedData = {
-        ...data,
-        systemCategoryId: data.systemCategoryId.map((item) => item._id),
+        ...newData,
+        systemCategoryId: newData.systemCategoryId.map((item) => item._id),
       };
 
       const res = await registerStore(convertedData);
