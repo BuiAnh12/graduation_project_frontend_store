@@ -1,5 +1,5 @@
 import publicApi from "./instances/publicApi";
-
+import authApi from "./instances/authApi";
 export const login = async (data) => {
   try {
     const response = await publicApi.post("/auth/login/staff", data, {
@@ -58,18 +58,6 @@ export const refreshAccessToken = async () => {
   }
 };
 
-export const changePassword = async (passwordData) => {
-  try {
-    const res = await axios.put("/auth/change-password", passwordData);
-    const data = res.data;
-
-    return data;
-  } catch (error) {
-    console.error("Change password error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
-  }
-};
-
 export const resetPassword = async (resetData) => {
   try {
     const res = await axios.post("/auth/reset-password", resetData);
@@ -91,5 +79,42 @@ export const getOwnerStore = async () => {
   } catch (error) {
     console.error("Get owner store error:", error);
     return error.response?.data || { message: "Unknown error occurred" };
+  }
+};
+
+// Forget password
+export const changePassword = async (data) => {
+  try {
+    const res = await authApi.put(`/auth/staff/profile/password`, data);
+    return res.data;
+  } catch (err) {
+    throw err.response;
+  }
+};
+
+export const forgotPassword = async (data) => {
+  try {
+    const res = await publicApi.post(`/auth/staff/forgot-password`, data);
+    return res.data;
+  } catch (err) {
+    throw err.response;
+  }
+};
+
+export const checkOTP = async (data) => {
+  try {
+    const res = await publicApi.post(`/auth/staff/verify-otp`, data);
+    return res.data;
+  } catch (err) {
+    throw err.response;
+  }
+};
+
+export const resetPasswordWithEmail = async (data) => {
+  try {
+    const res = await publicApi.put(`/auth/staff/reset-password`, data);
+    return res.data;
+  } catch (err) {
+    throw err.response;
   }
 };

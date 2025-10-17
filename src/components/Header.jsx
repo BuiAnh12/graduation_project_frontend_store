@@ -15,10 +15,9 @@ import localStorageService from "@/utils/localStorageService";
 const Header = ({ title, goBack }) => {
   const router = useRouter();
   const logoutUser = useLogout();
-  
+
   if (!title) {
-    const storeName = localStorageService.getStore()?.name;
-    console.log("Store name from localStorage:", localStorageService.getStore());
+    const storeName = localStorageService.getStoreName();
     title = storeName;
   }
 
@@ -37,7 +36,10 @@ const Header = ({ title, goBack }) => {
       {/* Left Side: Back Button or Title */}
       <div className="flex items-center space-x-4">
         {goBack && (
-          <button onClick={() => router.back()} className="p-1 rounded hover:bg-gray-100">
+          <button
+            onClick={() => router.back()}
+            className="p-1 rounded hover:bg-gray-100"
+          >
             <Image
               src="/assets/back.png"
               alt="Back"
@@ -78,19 +80,19 @@ const Header = ({ title, goBack }) => {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            className="bg-white border rounded-md shadow-lg mt-2 w-40 text-sm"
+            className="bg-white border-solid border-gray-300 border rounded-md shadow-lg mt-2 w-40 text-sm"
             sideOffset={8}
           >
             <DropdownMenuItem className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
               <Link href="/profile" className="block w-full">
-                Profile
+                Thông tin cá nhân
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem
               className="px-4 py-2 text-red-600 hover:bg-red-50 cursor-pointer"
               onClick={handleLogout}
             >
-              Logout
+              Đăng xuất
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

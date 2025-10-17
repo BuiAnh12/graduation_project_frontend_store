@@ -93,6 +93,7 @@ const Page = () => {
               toast.success("Đăng nhập thành công!");
               localStorageService.setToken(loginResult.data.token);
               localStorageService.setStoreId(loginResult.data.storeId);
+              localStorageService.setStoreName(loginResult.data.storeName);
               router.push("/home");
             }
             if (statusResponse.data === "register") {
@@ -206,6 +207,15 @@ const Page = () => {
                   {formik.errors.password}
                 </div>
               )}
+            </div>
+
+            <div className="flex justify-end my-4 w-3/4">
+              <a
+                href="/auth/forgot-password"
+                className="text-blue-600 italic hover:text-blue-500"
+              >
+                Quên mật khẩu?
+              </a>
             </div>
 
             {/* Submit Button */}
