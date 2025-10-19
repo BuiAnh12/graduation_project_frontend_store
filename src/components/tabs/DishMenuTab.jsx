@@ -12,8 +12,7 @@ import { CSS } from "@dnd-kit/utilities";
 import LabelWithIcon from "../../components/LableWithIcon";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-// import { getAllDish, toggleSaleStatus } from "@/service/dish";
-import { getDishes } from "@/service/dish";
+import { getDishes, toggleDishStatus } from "@/service/dish";
 import { transformToMenuFormat } from "../../utils/dishes";
 import Loading from "../../components/Loading";
 import localStorageService from "@/utils/localStorageService";
@@ -46,27 +45,29 @@ const DishTab = () => {
     fetchDishes();
   }, [storeId]);
 
-  // const toggleItemEnabled = async (id) => {
-  //     try {
-  //         await toggleSaleStatus({ dishId: id });
-  //         setMenu((prevMenu) =>
-  //             prevMenu.map((section) => ({
-  //                 ...section,
-  //                 items: section.items.map((item) =>
-  //                     item.id === id
-  //                         ? {
-  //                               ...item,
-  //                               saleStatus:
-  //                                   item.saleStatus === "AVAILABLE" ? "OUT_OF_STOCK" : "AVAILABLE",
-  //                           }
-  //                         : item
-  //                 ),
-  //             }))
-  //         );
-  //     } catch (err) {
-  //         console.error("Failed to toggle sale status", err);
-  //     }
-  // };
+  const toggleItemEnabled = async (id) => {
+    try {
+      await toggleDishStatus(storeId, id);
+      setMenu((prevMenu) =>
+        prevMenu.map((section) => ({
+          ...section,
+          items: section.items.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  stockStatus:
+                    item.stockStatus === "available"
+                      ? "out_of_stock"
+                      : "available",
+                }
+              : item
+          ),
+        }))
+      );
+    } catch (err) {
+      console.error("Failed to toggle sale status", err);
+    }
+  };
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -127,7 +128,7 @@ const DishTab = () => {
                     item={item}
                     router={router}
                     changePos={changePos}
-                    // toggleItemEnabled={toggleItemEnabled}
+                    toggleItemEnabled={toggleItemEnabled}
                   />
                 ))}
               </div>
@@ -178,7 +179,7 @@ const SortableItem = ({ item, changePos, router, toggleItemEnabled }) => {
         <input
           type="checkbox"
           className="sr-only peer"
-          checked={item.saleStatus === "AVAILABLE"}
+          checked={item.stockStatus === "available"}
           onChange={() => toggleItemEnabled(item.id)}
         />
         <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600 dark:peer-checked:bg-green-600"></div>

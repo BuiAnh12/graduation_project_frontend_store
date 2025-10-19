@@ -1,162 +1,333 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Header from "@/components/Header";
-import { useRouter, useParams } from "next/navigation";
-
+import Header from "../../../components/Header";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import {
-  getDish,
-  getToppingFromDish,
-  updateDish as updateDishService,
+  createDish,
+  updateDish,
+  getDishById,
+  deleteDish,
 } from "@/service/dish";
-import { getAllTopping } from "@/service/topping";
+import { getAllToppingsGroupByStore } from "@/service/topping";
 import { getAllCategories } from "@/service/category";
+import { getAllTags, predictTags } from "@/service/tags";
+import { uploadImage } from "@/service/upload";
+import localStorageService from "@/utils/localStorageService";
 
-import { uploadImages, deleteFile } from "@/service/upload";
-
-const Page = () => {
-  const { id } = useParams();
+const DishForm = () => {
   const router = useRouter();
+  const { id } = useParams(); // ✅ id trong route
+  const [storeId] = useState(localStorageService.getStoreId());
 
-  const [dish, setDish] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [allToppings, setAllToppings] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+  const [cookingMethodTags, setCookingMethodTags] = useState([]);
+  const [cultureTags, setCultureTags] = useState([]);
+  const [foodTags, setFoodTags] = useState([]);
+  const [tasteTags, setTasteTags] = useState([]);
+
+  const [imageFile, setImageFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [image, setImage] = useState(null);
   const [selectedToppings, setSelectedToppings] = useState(new Set());
-  const [selectedCategory, setSelectedCategory] = useState("");
-
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     description: "",
+    category: "",
+    stockCount: 0,
   });
-  const [allToppings, setAllToppings] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [selectedTags, setSelectedTags] = useState({
+    cookingMethod: new Set(),
+    culture: new Set(),
+    food: new Set(),
+    taste: new Set(),
+  });
   const [showModal, setShowModal] = useState(false);
 
-  const storeData =
-    typeof window !== "undefined" ? localStorage.getItem("store") : null;
-  const storeId = storeData ? JSON.parse(storeData)._id : null;
+  // ---------- FETCH DATA ----------
+  const fetchCategories = async () => {
+    try {
+      const res = await getAllCategories(storeId);
+      setAllCategories(res?.data || []);
+    } catch (err) {
+      toast.error("Lỗi khi tải danh mục");
+      console.error(err);
+    }
+  };
+
+  const fetchTags = async () => {
+    try {
+      const res = await getAllTags();
+      setCookingMethodTags(res?.data.cookingMethodTags || []);
+      setCultureTags(res?.data.cultureTags || []);
+      setFoodTags(res?.data.foodTags || []);
+      setTasteTags(res?.data.tasteTags || []);
+    } catch (err) {
+      toast.error("Lỗi khi tải thẻ");
+      console.error(err);
+    }
+  };
+
+  const fetchToppings = async () => {
+    try {
+      const res = await getAllToppingsGroupByStore(storeId);
+      setAllToppings(res?.data || []);
+    } catch (err) {
+      toast.error("Lỗi khi tải topping");
+      console.error(err);
+    }
+  };
+
+  const fetchDishDetail = async (dishId) => {
+    if (!dishId) return;
+    setLoading(true);
+    try {
+      const res = await getDishById(storeId, dishId);
+      const data = res?.data;
+
+      setFormData({
+        name: data.name || "",
+        price: data.price || "",
+        description: data.description || "",
+        category: data.category?._id || "",
+        stockCount: data.stockCount,
+      });
+
+      // Map tags -> set of tag IDs (use _id from API)
+      setSelectedTags({
+        cookingMethod: new Set(
+          data.cookingMethodtags?.map((tag) => tag._id) || []
+        ),
+        culture: new Set(data.cultureTags?.map((tag) => tag._id) || []),
+        food: new Set(data.dishTags?.map((tag) => tag._id) || []),
+        taste: new Set(data.tasteTags?.map((tag) => tag._id) || []),
+      });
+
+      // New API returns toppingGroups (each group has _id). Use group ids as selected topping groups.
+      if (Array.isArray(data.toppingGroups)) {
+        setSelectedToppings(new Set(data.toppingGroups.map((g) => g._id)));
+      } else {
+        // fallback if older field exists
+        setSelectedToppings(new Set(data.toppings || []));
+      }
+
+      // Image may have url or file_path -> prefer url, fallback to file_path
+      if (data.image) {
+        setPreviewUrl(data.image.url || data.image.file_path || null);
+        setImage(data.image._id || null);
+      }
+    } catch (err) {
+      toast.error("Không thể tải chi tiết món ăn");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!storeId) return;
+    if (storeId) {
+      fetchCategories();
+      fetchToppings();
+    }
+    fetchTags();
+  }, [storeId]);
 
-    const fetchData = async () => {
-      try {
-        const [dishRes, toppingRes, allToppingsRes, categoriesRes] =
-          await Promise.all([
-            getDish(id),
-            getToppingFromDish(id),
-            getAllTopping({ storeId }),
-            getAllCategories({ storeId }),
-          ]);
+  useEffect(() => {
+    if (id) fetchDishDetail(id);
+  }, [id]);
 
-        const dishData = dishRes.data || {};
-        const toppingsFromDish = toppingRes.data || [];
-        const toppingList = allToppingsRes.data || [];
-        const categoryList = categoriesRes.data || [];
-
-        setDish(dishData);
-        setAllToppings(toppingList);
-        setCategories(categoryList);
-
-        setImage(dishData?.image?.url || null);
-        setSelectedToppings(new Set(dishData.toppingGroups || []));
-        setSelectedCategory(dishData?.category?._id || "");
-        setFormData({
-          name: dishData.name || "",
-          price: dishData.price || "",
-          description: dishData.description || "",
-        });
-      } catch (err) {
-        console.error("Failed to fetch dish details", err);
-      }
-    };
-
-    fetchData();
-  }, [id, storeId]);
+  // ---------- HANDLERS ----------
+  const handleTagToggle = (type, tagId) => {
+    setSelectedTags((prev) => {
+      const updated = new Set(prev[type]);
+      if (updated.has(tagId)) updated.delete(tagId);
+      else updated.add(tagId);
+      return { ...prev, [type]: updated };
+    });
+  };
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setImage(URL.createObjectURL(file));
+      setImageFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleToppingToggle = (toppingId) => {
     setSelectedToppings((prev) => {
       const updatedSet = new Set(prev);
-      updatedSet.has(toppingId)
-        ? updatedSet.delete(toppingId)
-        : updatedSet.add(toppingId);
+      if (updatedSet.has(toppingId)) updatedSet.delete(toppingId);
+      else updatedSet.add(toppingId);
       return updatedSet;
     });
   };
 
-  const handleSave = () => setShowModal(true);
+  const handleSave = () => {
+    setShowModal(true);
+  };
 
   const confirmSave = async () => {
     setShowModal(false);
-    let uploadedImage = { filePath: "", url: image };
+    let uploadedImage = image;
 
-    // Upload image if new
-    if (image && !image.startsWith("http")) {
+    // Nếu có upload ảnh mới thì upload
+    if (imageFile) {
       try {
-        const fileInput = document.getElementById("imageUpload");
-        if (!fileInput.files.length) return;
-
-        const fileForm = new FormData();
-        fileForm.append("file", fileInput.files[0]);
-
-        if (dish.image?.url) {
-          await deleteFile(dish.image.url);
-        }
-
-        const uploadRes = await uploadImages(fileForm).unwrap();
-        uploadedImage = {
-          filePath: uploadRes[0].filePath,
-          url: uploadRes[0].url,
-        };
-      } catch (error) {
-        console.error("Image upload failed", error);
+        const res = await uploadImage(imageFile);
+        uploadedImage = res?.id;
+      } catch (err) {
+        toast.error("Không thể tải ảnh lên");
         return;
       }
     }
 
-    const updatedData = {
-      name: formData.name,
+    // Chuẩn hóa dữ liệu gửi lên backend
+    const payload = {
+      name: formData.name.trim(),
       price: Number(formData.price),
-      description: formData.description,
+      description: formData.description.trim(),
+      category: formData.category,
       image: uploadedImage,
-      toppingGroups: Array.from(selectedToppings),
-      category: selectedCategory,
+      dishTags: Array.from(selectedTags.food),
+      tasteTags: Array.from(selectedTags.taste),
+      cookingMethodtags: Array.from(selectedTags.cookingMethod),
+      cultureTags: Array.from(selectedTags.culture),
+      toppingGroupIds: Array.from(selectedToppings),
+      stockStatus: "available",
+      stockCount: formData.stockCount,
     };
 
     try {
-      await updateDishService({ dishId: id, updatedData });
+      if (id) {
+        // ✅ Sửa lại truyền storeId + dishId cho đúng với backend
+        await updateDish(storeId, id, payload);
+        toast.success("Cập nhật món ăn thành công!");
+      } else {
+        await createDish(storeId, payload);
+        toast.success("Tạo món ăn thành công!");
+      }
       router.back();
     } catch (err) {
-      console.error("Update dish failed", err);
+      console.error("Lưu thất bại:", err);
+      toast.error("Không thể lưu món ăn");
     }
   };
 
+  const handleDelete = async () => {
+    if (!id) {
+      toast.warning("Không thể xóa món ăn mới chưa lưu!");
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: "Xác nhận xóa",
+      text: "Bạn có chắc chắn muốn xóa món ăn này không?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        setLoading(true);
+        await deleteDish(storeId, id);
+        await Swal.fire({
+          title: "Đã xóa!",
+          text: "Món ăn đã được xóa thành công.",
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+        });
+        router.back();
+      } catch (err) {
+        console.error("Lỗi khi xóa món ăn:", err);
+        Swal.fire({
+          title: "Lỗi!",
+          text: "Không thể xóa món ăn. Vui lòng thử lại.",
+          icon: "error",
+          confirmButtonColor: "#3085d6",
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleAutoTag = async () => {
+    if (!imageFile) {
+      toast.warning("Vui lòng chọn ảnh trước khi gợi ý thẻ!");
+      return;
+    }
+
+    try {
+      toast.info("Đang phân tích ảnh...");
+      const res = await predictTags(imageFile);
+      const postProcess = res?.post_preocess || [];
+
+      const newSelected = {
+        cookingMethod: new Set(selectedTags.cookingMethod),
+        culture: new Set(selectedTags.culture),
+        food: new Set(selectedTags.food),
+        taste: new Set(selectedTags.taste),
+      };
+
+      postProcess.forEach((group) => {
+        group.tags.forEach((tag) => {
+          switch (tag.type) {
+            case "food":
+              newSelected.food.add(tag._id);
+              break;
+            case "culture":
+              newSelected.culture.add(tag._id);
+              break;
+            case "cooking_method":
+              newSelected.cookingMethod.add(tag._id);
+              break;
+            case "taste":
+              newSelected.taste.add(tag._id);
+              break;
+          }
+        });
+      });
+
+      setSelectedTags(newSelected);
+      toast.success("Đã gợi ý thẻ thành công!");
+    } catch (err) {
+      console.error("Predict tags failed:", err);
+      toast.error("Không thể gợi ý thẻ tự động");
+    }
+  };
+
+  // ---------- UI ----------
   return (
     <>
-      <Header title="Chi tiết món ăn" goBack={true} />
+      <Header title="Cập nhật món ăn" goBack={true} />
       <div className="w-full px-5 py-6 mt-12 mb-24">
         <div className="flex-1 overflow-auto space-y-6">
-          {/* Image section */}
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <label className="block text-sm font-semibold text-gray-700">
               Hình ảnh
             </label>
             <div className="relative mt-3 w-24 h-24 rounded-md border flex items-center justify-center bg-gray-100">
-              {image ? (
+              {previewUrl ? (
                 <img
-                  src={image}
+                  src={previewUrl}
                   alt="Uploaded"
                   className="w-full h-full rounded-md object-cover"
                 />
@@ -177,9 +348,22 @@ const Page = () => {
                 Sửa
               </button>
             </div>
+
+            <div className="flex justify-between mt-4 items-center">
+              <label className="flex-1 block text-sm font-semibold text-gray-700">
+                Số phần còn lại
+              </label>
+              <input
+                type="number"
+                name="stockCount"
+                value={formData.stockCount}
+                min="0"
+                onChange={handleChange}
+                className="flex-1 p-2 ring-1 ring-gray-300 my-2 rounded-md outline-none focus:ring-[#fc6011]"
+              />
+            </div>
           </div>
 
-          {/* Form fields */}
           <div className="bg-white rounded-xl p-4 shadow-sm space-y-4">
             {[
               { label: "Tên*", name: "name", type: "text" },
@@ -189,8 +373,8 @@ const Page = () => {
                 name: "description",
                 type: "text",
               },
-            ].map((field, i) => (
-              <div key={i} className="border-b pb-2">
+            ].map((field, index) => (
+              <div key={index} className="border-b pb-2">
                 <label className="block text-sm font-semibold text-gray-700">
                   {field.label}
                 </label>
@@ -203,28 +387,26 @@ const Page = () => {
                 />
               </div>
             ))}
+            <div className="border-b pb-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Danh mục*
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full p-2 ring-1 ring-gray-300 my-2 rounded-md outline-none focus:ring-[#fc6011]"
+              >
+                <option value="">Chọn danh mục</option>
+                {allCategories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* Category select */}
-          <div className="bg-white rounded-xl p-4 shadow-sm">
-            <label className="block text-sm font-semibold text-gray-700">
-              Danh mục*
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full p-2 ring-1 ring-gray-300 my-2 rounded-md outline-none focus:ring-[#fc6011]"
-            >
-              <option value="">Chọn danh mục</option>
-              {categories.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Toppings */}
           <div className="bg-white rounded-xl p-4 shadow-sm space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">
               Topping của cửa hàng
@@ -250,24 +432,124 @@ const Page = () => {
             )}
           </div>
 
-          {/* Save Button */}
-          <div className="flex justify-end w-full items-center">
+          <div className="flex justify-between">
+            <p className="text-lg font-semibold">Tags</p>
+            <button
+              onClick={handleAutoTag}
+              disabled={!imageFile}
+              className={`text-xs px-3 py-2 rounded-md shadow-md transition ${
+                imageFile
+                  ? "bg-[#fc6011] text-white hover:bg-[#e7560f]"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
+            >
+              Gợi ý thẻ
+            </button>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Phương pháp nấu
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {cookingMethodTags.map((tag) => (
+                <button
+                  key={tag._id}
+                  onClick={() => handleTagToggle("cookingMethod", tag._id)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
+          ${
+            selectedTags.cookingMethod.has(tag._id)
+              ? "bg-green-500 text-white border-green-500"
+              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+          }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
+            <h3 className="text-lg font-semibold text-gray-800">Văn hóa</h3>
+            <div className="flex flex-wrap gap-2">
+              {cultureTags.map((tag) => (
+                <button
+                  key={tag._id}
+                  onClick={() => handleTagToggle("culture", tag._id)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
+          ${
+            selectedTags.culture.has(tag._id)
+              ? "bg-green-500 text-white border-green-500"
+              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+          }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
+            <h3 className="text-lg font-semibold text-gray-800">Thành phần</h3>
+            <div className="flex flex-wrap gap-2">
+              {foodTags.map((tag) => (
+                <button
+                  key={tag._id}
+                  onClick={() => handleTagToggle("food", tag._id)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
+          ${
+            selectedTags.food.has(tag._id)
+              ? "bg-green-500 text-white border-green-500"
+              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+          }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
+            <h3 className="text-lg font-semibold text-gray-800">Hương vị</h3>
+            <div className="flex flex-wrap gap-2">
+              {tasteTags.map((tag) => (
+                <button
+                  key={tag._id}
+                  onClick={() => handleTagToggle("taste", tag._id)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
+          ${
+            selectedTags.taste.has(tag._id)
+              ? "bg-green-500 text-white border-green-500"
+              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+          }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-between w-full items-center">
+            <button
+              onClick={handleDelete}
+              className="text-white  p-3 px-10 text-md font-semibold rounded-lg bg-red-500"
+            >
+              Xóa
+            </button>
             <button
               onClick={handleSave}
-              className="text-white p-3 px-10 text-md font-semibold rounded-lg bg-[#fc6011]"
+              className="text-white  p-3 px-10 text-md font-semibold rounded-lg bg-[#fc6011]"
             >
-              Lưu
+              Cập nhật
             </button>
           </div>
 
-          {/* Modal confirm */}
           {showModal && (
             <div
-              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+              className="fixed inset-0 flex items-center justify-center bg-black/40 z-50"
               onClick={() => setShowModal(false)}
             >
               <div
-                className="bg-white p-5 rounded-lg shadow-lg p-10"
+                className="bg-white rounded-lg shadow-lg p-10"
                 onClick={(e) => e.stopPropagation()}
               >
                 <p>Bạn có chắc chắn muốn lưu?</p>
@@ -282,7 +564,7 @@ const Page = () => {
                     onClick={confirmSave}
                     className="bg-green-500 text-white px-4 py-2 rounded"
                   >
-                    Xác nhận
+                    Cập nhật
                   </button>
                 </div>
               </div>
@@ -290,9 +572,8 @@ const Page = () => {
           )}
         </div>
       </div>
-      <NavBar page="" />
     </>
   );
 };
 
-export default Page;
+export default DishForm;

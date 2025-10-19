@@ -11,45 +11,50 @@ export const getDishes = async (storeId, query = {}) => {
   }
 };
 
-export const createDish = async (data) => {
+export const createDish = async (storeId, data) => {
   try {
-    const res = await authApi.post("/staff", data);
+    const res = await authApi.post(`/dish/store/${storeId}`, data);
     return res.data;
   } catch (err) {
     throw err.response;
   }
 };
 
-export const updateStaff = async (staffId, data) => {
+export const updateDish = async (storeId, dishId, data) => {
   try {
-    const res = await authApi.put(`/staff/${staffId}`, data);
+    const res = await authApi.put(
+      `/dish/store/${storeId}/dish/${dishId}`,
+      data
+    );
     return res.data;
   } catch (err) {
     throw err.response;
   }
 };
 
-export const getStaffDetail = async (staffId) => {
+export const deleteDish = async (storeId, dishId) => {
   try {
-    const res = await authApi.get(`/staff/detail/${staffId}`);
+    const res = await authApi.delete(`/dish/store/${storeId}/dish/${dishId}`);
     return res.data;
   } catch (err) {
     throw err.response;
   }
 };
 
-export const deleteStaff = async (storeId, staffId) => {
+export const toggleDishStatus = async (storeId, dishId) => {
   try {
-    const res = await authApi.delete(`/staff/${storeId}/${staffId}`);
+    const res = await authApi.post(
+      `/dish/store/${storeId}/dish/${dishId}/status`
+    );
     return res.data;
   } catch (err) {
     throw err.response;
   }
 };
 
-export const toggleStatusStaff = async (staffId) => {
+export const getDishById = async (storeId, dishId) => {
   try {
-    const res = await authApi.put(`/staff/${staffId}/toggle-status`);
+    const res = await authApi.get(`/dish/store/${storeId}/dish/${dishId}`);
     return res.data;
   } catch (err) {
     throw err.response;

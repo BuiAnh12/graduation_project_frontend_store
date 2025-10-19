@@ -1,23 +1,29 @@
 "use client";
-    
+
 import React, { useEffect, useState } from "react";
 import Header from "../../../components/Header";
 import { useRouter } from "next/navigation";
-
+import { toast } from "react-toastify";
 import { createDish } from "@/service/dish";
-// import { getAllTopping } from "@/service/topping";
+import { getAllToppingsGroupByStore } from "@/service/topping";
 import { getAllCategories } from "@/service/category";
-import { uploadImages } from "@/service/upload";
+import { getAllTags, predictTags } from "@/service/tags";
+import { uploadImage } from "@/service/upload";
 import localStorageService from "@/utils/localStorageService";
 
 const CreateDish = () => {
   const router = useRouter();
-  const storeData = localStorage.getItem("store");
   const [storeId, setStoreId] = useState(localStorageService.getStoreId());
 
   const [allToppings, setAllToppings] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
-
+  const [cookingMethodTags, setCookingMethodTags] = useState([]);
+  const [cultureTags, setCultureTags] = useState([]);
+  const [foodTags, setFoodTags] = useState([]);
+  const [tasteTags, setTasteTags] = useState([]);
+  // State cho ảnh: giữ cả file và preview
+  const [imageFile, setImageFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [image, setImage] = useState(null);
   const [selectedToppings, setSelectedToppings] = useState(new Set());
   const [formData, setFormData] = useState({
@@ -26,26 +32,77 @@ const CreateDish = () => {
     description: "",
     category: "",
   });
+  const [selectedTags, setSelectedTags] = useState({
+    cookingMethod: new Set(),
+    culture: new Set(),
+    food: new Set(),
+    taste: new Set(),
+  });
   const [showModal, setShowModal] = useState(false);
 
-  // Fetch toppings and categories
-  //   useEffect(() => {
-  //     const fetchInitialData = async () => {
-  //       const [toppingRes, categoryRes] = await Promise.all([
-  //         getAllTopping({ storeId }),
-  //         getAllCategories({ storeId }),
-  //       ]);
-  //       setAllToppings(toppingRes?.data || []);
-  //       setAllCategories(categoryRes?.data || []);
-  //     };
+  const fetchCategories = async () => {
+    try {
+      const res = await getAllCategories(storeId);
+      setAllCategories(res?.data || []);
+    } catch (err) {
+      toast.error("Lỗi khi tải danh mục");
+      console.error(err);
+    } finally {
+    }
+  };
 
-  //     fetchInitialData();
-  //   }, [storeId]);
+  const fetchTags = async () => {
+    try {
+      const res = await getAllTags();
+      setCookingMethodTags(res?.data.cookingMethodTags || []);
+      setCultureTags(res?.data.cultureTags || []);
+      setFoodTags(res?.data.foodTags || []);
+      setTasteTags(res?.data.tasteTags || []);
+    } catch (err) {
+      toast.error("Lỗi khi tải danh mục");
+      console.error(err);
+    } finally {
+    }
+  };
 
+  const fetchToppings = async () => {
+    try {
+      const res = await getAllToppingsGroupByStore(storeId);
+      setAllToppings(res?.data || []);
+    } catch (err) {
+      toast.error("Lỗi khi tải danh mục");
+      console.error(err);
+    } finally {
+    }
+  };
+
+  useEffect(() => {
+    if (storeId) {
+      fetchCategories();
+      fetchToppings();
+    }
+  }, [storeId]);
+
+  useEffect(() => {
+    fetchTags();
+  }, []);
+  const handleTagToggle = (type, tagId) => {
+    setSelectedTags((prev) => {
+      const updated = new Set(prev[type]);
+      if (updated.has(tagId)) {
+        updated.delete(tagId);
+      } else {
+        updated.add(tagId);
+      }
+      return { ...prev, [type]: updated };
+    });
+  };
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setImage(URL.createObjectURL(file));
+      setImageFile(file); // Lưu file để upload
+      setImage(file); // Cập nhật state image
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
@@ -75,43 +132,92 @@ const CreateDish = () => {
 
   const confirmSave = async () => {
     setShowModal(false);
+    let uploadedImage = null;
 
-    let uploadedImage = { filePath: "", url: image };
-
-    // If image is a new file (not URL), upload it
-    if (image && !image.startsWith("http")) {
-      const fileInput = document.getElementById("imageUpload");
-      if (!fileInput.files.length) {
-        console.error("No file selected");
-        return;
-      }
-
+    if (imageFile) {
       try {
-        const imageForm = new FormData();
-        imageForm.append("file", fileInput.files[0]);
-
-        const uploadRes = await uploadImages(imageForm);
-        uploadedImage = {
-          filePath: uploadRes[0].filePath,
-          url: uploadRes[0].url,
-        };
+        const res = await uploadImage(imageFile);
+        uploadedImage = res?.id;
       } catch (err) {
-        console.error("Image upload failed", err);
+        toast.error("Không thể tải ảnh lên");
         return;
       }
     }
 
     const newDishData = {
-      name: formData.name,
+      name: formData.name.trim(),
       price: Number(formData.price),
-      description: formData.description,
+      description: formData.description.trim(),
       category: formData.category,
       image: uploadedImage,
-      toppingGroups: Array.from(selectedToppings),
+      dishTags: Array.from(selectedTags.food),
+      tasteTags: Array.from(selectedTags.taste),
+      cookingMethodtags: Array.from(selectedTags.cookingMethod),
+      cultureTags: Array.from(selectedTags.culture),
+      stockStatus: "available",
+      stockCount: -1,
+
+      // ✅ Gửi danh sách topping group id lên backend
+      toppingGroupIds: Array.from(selectedToppings),
     };
 
-    await createDish({ storeId, dishData: newDishData });
-    router.back();
+    try {
+      await createDish(storeId, newDishData);
+      toast.success("Tạo món ăn thành công!");
+      router.back();
+    } catch (err) {
+      console.error("Tạo món ăn thất bại:", err);
+      toast.error("Không thể tạo món ăn");
+    }
+  };
+
+  const handleAutoTag = async () => {
+    if (!imageFile) {
+      toast.warning("Vui lòng chọn ảnh trước khi gợi ý thẻ!");
+      return;
+    }
+
+    try {
+      toast.info("Đang phân tích ảnh...");
+
+      const res = await predictTags(imageFile);
+      const postProcess = res?.post_preocess || [];
+
+      // Tạo map các set mới cho từng loại tag
+      const newSelected = {
+        cookingMethod: new Set(selectedTags.cookingMethod),
+        culture: new Set(selectedTags.culture),
+        food: new Set(selectedTags.food),
+        taste: new Set(selectedTags.taste),
+      };
+
+      postProcess.forEach((group) => {
+        group.tags.forEach((tag) => {
+          switch (tag.type) {
+            case "food":
+              newSelected.food.add(tag._id);
+              break;
+            case "culture":
+              newSelected.culture.add(tag._id);
+              break;
+            case "cooking_method":
+              newSelected.cookingMethod.add(tag._id);
+              break;
+            case "taste":
+              newSelected.taste.add(tag._id);
+              break;
+            default:
+              break;
+          }
+        });
+      });
+
+      setSelectedTags(newSelected);
+      toast.success("Đã gợi ý thẻ thành công!");
+    } catch (err) {
+      console.error("Predict tags failed:", err);
+      toast.error("Không thể gợi ý thẻ tự động");
+    }
   };
 
   return (
@@ -124,9 +230,9 @@ const CreateDish = () => {
               Hình ảnh
             </label>
             <div className="relative mt-3 w-24 h-24 rounded-md border flex items-center justify-center bg-gray-100">
-              {image ? (
+              {previewUrl ? (
                 <img
-                  src={image}
+                  src={previewUrl}
                   alt="Uploaded"
                   className="w-full h-full rounded-md object-cover"
                 />
@@ -217,6 +323,102 @@ const CreateDish = () => {
             )}
           </div>
 
+          <div className="flex justify-between">
+            <p className="text-lg font-semibold">Tags</p>
+            <button
+              onClick={handleAutoTag}
+              disabled={!imageFile}
+              className={`text-xs px-3 py-2 rounded-md shadow-md transition ${
+                imageFile
+                  ? "bg-[#fc6011] text-white hover:bg-[#e7560f]"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
+            >
+              Gợi ý thẻ
+            </button>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Phương pháp nấu
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {cookingMethodTags.map((tag) => (
+                <button
+                  key={tag._id}
+                  onClick={() => handleTagToggle("cookingMethod", tag._id)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
+          ${
+            selectedTags.cookingMethod.has(tag._id)
+              ? "bg-green-500 text-white border-green-500"
+              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+          }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
+            <h3 className="text-lg font-semibold text-gray-800">Văn hóa</h3>
+            <div className="flex flex-wrap gap-2">
+              {cultureTags.map((tag) => (
+                <button
+                  key={tag._id}
+                  onClick={() => handleTagToggle("culture", tag._id)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
+          ${
+            selectedTags.culture.has(tag._id)
+              ? "bg-green-500 text-white border-green-500"
+              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+          }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
+            <h3 className="text-lg font-semibold text-gray-800">Thành phần</h3>
+            <div className="flex flex-wrap gap-2">
+              {foodTags.map((tag) => (
+                <button
+                  key={tag._id}
+                  onClick={() => handleTagToggle("food", tag._id)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
+          ${
+            selectedTags.food.has(tag._id)
+              ? "bg-green-500 text-white border-green-500"
+              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+          }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
+            <h3 className="text-lg font-semibold text-gray-800">Hương vị</h3>
+            <div className="flex flex-wrap gap-2">
+              {tasteTags.map((tag) => (
+                <button
+                  key={tag._id}
+                  onClick={() => handleTagToggle("taste", tag._id)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
+          ${
+            selectedTags.taste.has(tag._id)
+              ? "bg-green-500 text-white border-green-500"
+              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+          }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="flex justify-end w-full items-center">
             <button
               onClick={handleSave}
@@ -228,7 +430,7 @@ const CreateDish = () => {
 
           {showModal && (
             <div
-              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+              className="fixed inset-0 flex items-center justify-center bg-black/40 z-50"
               onClick={() => setShowModal(false)}
             >
               <div
