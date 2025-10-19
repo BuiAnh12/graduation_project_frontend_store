@@ -45,7 +45,7 @@ const OrderDetailsPage = () => {
     switch (order?.status) {
       case "pending":
         return <LatestOrder order={order} />;
-      case "confirmed":
+      case "preparing":
       case "finished":
         return <ConfirmedOrder order={order} />;
       case "delivered":

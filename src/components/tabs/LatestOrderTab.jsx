@@ -14,7 +14,7 @@ const OrderCard = ({ order, orderIndex, refetch }) => {
     if (!order) return;
     try {
       console.log(order._id);
-      const updatedOrder = { ...order, status: "confirmed" };
+      const updatedOrder = { ...order, status: "preparing" };
       const orderId = order._id;
       await updateOrder({ orderId, updatedData: updatedOrder });
       refetch();

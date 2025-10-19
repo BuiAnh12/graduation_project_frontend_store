@@ -23,7 +23,7 @@ export const getAllOrders = async ({ storeId, status, limit, page }) => {
 
 export const getOrder = async ({ orderId }) => {
   try {
-    const res = await authApi.get(`/order/${orderId}`);
+    const res = await authApi.get(`/order/${orderId}/store`);
     return res.data;
   } catch (error) {
     throw error.response;

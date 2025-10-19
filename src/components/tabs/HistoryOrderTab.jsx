@@ -4,7 +4,30 @@ import { useRouter } from "next/navigation";
 import { getAllOrders } from "@/service/order";
 import ReactPaginate from "react-paginate";
 import generateOrderNumber from "../../utils/generateOrderNumber";
-import { ClipLoader } from "react-spinners";
+import { ThreeDots } from "react-loader-spinner";
+
+const paymentTypes = {
+  cash: "Thanh toán khi nhận hàng",
+  vnpay: "Thanh toán qua VNPay",
+};
+
+const statusTypes = {
+  pending: "Đang chờ",
+  preparing: "Đang chuẩn bị",
+  delivered: "Đã giao",
+  cancelled: "Đã hủy",
+  completed: "Hoàn thành",
+  taken: "Đã lấy",
+  delivering: "Đang giao",
+  done: "Đã xong",
+};
+
+const formatVND = (n) =>
+  (n ?? 0).toLocaleString("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  });
 
 const OrderCard = ({ order, orderIndex }) => {
   const [cartPrice, setCartPrice] = useState(0);
@@ -41,12 +64,21 @@ const OrderCard = ({ order, orderIndex }) => {
     <div
       className="border rounded-lg shadow-md p-4 bg-white mb-4"
       onClick={() => router.push(`orders/${order._id}`)}
+      data-testid="verify-order-row"
+      data-order-id={order._id}
+      data-status={order.status}
     >
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center">
           <div className="text-sm text-gray-700">
             <p className="text-gray-700 text-md font-bold">
               {order.user?.name || "Unknown User"}
+            </p>
+            <p>
+              <span data-testid="total-qty">{cartQuantity}</span> Món /
+              <span data-testid="total-price">
+                {formatVND(order.finalTotal)}
+              </span>
             </p>
             <p className="text-sm text-gray-400 text-light">
               {generateOrderNumber(order._id)}
@@ -71,22 +103,22 @@ const OrderCard = ({ order, orderIndex }) => {
           <p className="text-sm font-medium text-[#fc6011]">{cartQuantity}</p>
         </div>
         <div className="col-span-6">
-          <p className="text-sm font-medium text-gray-400">Khoảng cách</p>
-          <p className="text-sm font-medium text-gray-800">
-            {order.distance ?? "n/a"} Km
+          <p className="text-sm font-medium text-gray-400">Trạng thái</p>
+          <p className="text-sm text-gray-800 font-senibold">
+            {statusTypes[order.status] ?? "n/a"}
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-2">
         <div className="flex justify-start items-center">
-          <div className="text-sm text-gray-400 font-light">
-            {order.paymentMethod || "Thanh toán khi nhận hàng"}
+          <div className="text-sm text-gray-400 font-bold">
+            {paymentTypes[order.paymentMethod] || "Thanh toán khi nhận hàng"}
           </div>
         </div>
         <div className="flex justify-end items-center">
           <div className="text-sm text-[#fc6011] font-bold">
-            {cartPrice.toFixed(0)}đ
+            {formatVND(order.finalTotal)}
           </div>
         </div>
       </div>
@@ -106,12 +138,19 @@ const HistoryOrder = ({ storeId }) => {
       setLoading(true);
       const res = await getAllOrders({
         storeId,
-        status: ["delivered", "cancelled"],
+        status: [
+          "delivered",
+          "cancelled",
+          "completed",
+          "taken",
+          "delivering",
+          "done",
+        ],
         limit: ordersPerPage,
         page: currentPage,
       });
 
-      setOrders(res?.data.data ?? []);
+      setOrders(res?.data?.data ?? []);
       setTotalPages(res?.totalPages || 1);
     } catch (error) {
       console.error("Error loading orders:", error);
@@ -131,10 +170,12 @@ const HistoryOrder = ({ storeId }) => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen w-screen">
-        <ClipLoader
+        <ThreeDots
+          visible={true}
+          height="80"
+          width="80"
           color="#fc6011"
-          loading={true}
-          size={80} // 👈 thay cho height/width
+          radius="9"
         />
       </div>
     );
@@ -201,6 +242,7 @@ const HistoryOrder = ({ storeId }) => {
           marginPagesDisplayed={2}
           pageRangeDisplayed={3}
           onPageChange={handlePageClick}
+          forcePage={currentPage - 1}
           containerClassName="pagination flex space-x-2"
           activeClassName="bg-orange-500 text-white"
           pageClassName="border px-3 py-1 rounded-lg cursor-pointer"

@@ -57,7 +57,6 @@ const page = () => {
           onTabChange={handleTabChange}
         />
       </div>
-
     </>
   );
 };

@@ -18,6 +18,7 @@ export const transformToMenuFormat = (apiData) => {
       price: `${item.price?.toLocaleString("vi-VN")}đ`,
       saleStatus: item.stockStatus === "available" ? "Còn hàng" : "Hết hàng",
       image: item.image?.url || null,
+      stockStatus: item.stockStatus,
       toppingGroups:
         item.toppingGroups?.map((t) => ({
           id: t._id,
