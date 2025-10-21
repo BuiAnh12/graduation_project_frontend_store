@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   getReturningCustomerRate,
   getAverageSpendingPerOrder,
   getNewCustomers,
-} from '@/service/statistic';
+} from "@/service/statistic";
 import {
   PieChart,
   Pie,
@@ -13,9 +13,9 @@ import {
   ResponsiveContainer,
   Tooltip,
   Legend,
-} from 'recharts';
+} from "recharts";
 
-const COLORS = ['#10b981', '#f87171']; // Returning: green, New: red
+const COLORS = ["#10b981", "#f87171"]; // Returning: green, New: red
 
 export default function CustomerTab() {
   const [returnRate, setReturnRate] = useState(0);
@@ -46,13 +46,13 @@ export default function CustomerTab() {
         thisMonth: newCusRes?.data?.thisMonth ?? 0,
       });
     } catch (error) {
-      console.error('Failed to fetch customer stats:', error);
+      console.error("Failed to fetch customer stats:", error);
     }
   };
 
   const returnChartData = [
-    { name: 'Khách quay lại', value: returnRate },
-    { name: 'Khách mới', value: 100 - returnRate },
+    { name: "Khách quay lại", value: returnRate },
+    { name: "Khách mới", value: 100 - returnRate },
   ];
 
   return (
@@ -75,7 +75,7 @@ export default function CustomerTab() {
 
       {/* Pie Chart */}
       <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-2">🎯 Returning Rate</h3>
+        <h3 className="text-lg font-semibold mb-2">Tỉ lệ quay lại</h3>
         <div className="w-full h-64">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>

@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   getVoucherUsageSummary,
   getTopUsedVouchers,
   getVoucherRevenueImpact,
-} from '@/service/statistic';
-import { toast } from 'react-toastify';
-import { format } from 'date-fns';
+} from "@/service/statistic";
+import { toast } from "react-toastify";
+import { format } from "date-fns";
 
 const VoucherTab = () => {
-  const [from, setFrom] = useState(format(new Date(), 'yyyy-MM-01'));
-  const [to, setTo] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [from, setFrom] = useState(format(new Date(), "yyyy-MM-01"));
+  const [to, setTo] = useState(format(new Date(), "yyyy-MM-dd"));
   const [limit, setLimit] = useState(5);
 
   const [usageSummary, setUsageSummary] = useState(null);
@@ -33,7 +33,7 @@ const VoucherTab = () => {
       setTopVouchers(topRes?.data || []);
       setRevenueImpact(revenueRes?.data || {});
     } catch (err) {
-      toast.error('Lỗi khi tải dữ liệu voucher');
+      toast.error("Lỗi khi tải dữ liệu voucher");
     } finally {
       setLoading(false);
     }
@@ -86,22 +86,34 @@ const VoucherTab = () => {
           <div className="mb-6">
             <h3 className="text-lg font-medium mb-2">Tổng quan sử dụng</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <SummaryCard title="Số lượt sử dụng" value={usageSummary?.totalUsed || 0} />
-              <SummaryCard title="Số voucher đã phát hành" value={usageSummary?.totalIssued || 0} />
-              <SummaryCard title="Tỷ lệ sử dụng" value={`${usageSummary?.usageRate?.toFixed(1) || 0}%`} />
+              <SummaryCard
+                title="Số lượt sử dụng"
+                value={usageSummary?.totalUsed || 0}
+              />
+              <SummaryCard
+                title="Số voucher đã phát hành"
+                value={usageSummary?.totalIssued || 0}
+              />
+              <SummaryCard
+                title="Tỷ lệ sử dụng"
+                value={`${usageSummary?.usageRate?.toFixed(1) || 0}%`}
+              />
             </div>
           </div>
 
           {/* Top Used Vouchers */}
           <div className="mb-6">
-            <h3 className="text-lg font-medium mb-2">Top {limit} Voucher được sử dụng</h3>
+            <h3 className="text-lg font-medium mb-2">
+              Top {limit} Voucher được sử dụng
+            </h3>
             {topVouchers.length === 0 ? (
               <p className="text-gray-500">Không có dữ liệu</p>
             ) : (
               <ul className="list-disc pl-5">
                 {topVouchers.map((voucher, idx) => (
                   <li key={voucher._id}>
-                    <span className="font-semibold">{voucher.code}</span> - {voucher.usedCount} lượt
+                    <span className="font-semibold">{voucher.code}</span> -{" "}
+                    {voucher.usedCount} lượt
                   </li>
                 ))}
               </ul>
@@ -118,7 +130,9 @@ const VoucherTab = () => {
               />
               <SummaryCard
                 title="Tổng giá trị đơn hàng sử dụng voucher"
-                value={`${(revenueImpact?.totalVoucherOrderValue || 0).toLocaleString()}₫`}
+                value={`${(
+                  revenueImpact?.totalVoucherOrderValue || 0
+                ).toLocaleString()}₫`}
               />
             </div>
           </div>
