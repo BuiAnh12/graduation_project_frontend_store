@@ -3,7 +3,7 @@ import OrderTab from "@/components/tabs/statistics/orderTab";
 import TopItemsTab from "@/components/tabs/statistics/itemTab";
 import CustomerTab from "@/components/tabs/statistics/customerTab";
 import VoucherTab from "@/components/tabs/statistics/voucherTab";
-
+import Header from "@/components/Header";
 // React icons
 import {
   FiBarChart2,
@@ -73,5 +73,10 @@ export default async function TabPage({ params }) {
     }
   };
 
-  return <>{renderTabContent()}</>;
+  return (
+    <>
+      <Header title="Báo cáo" goBack={true} />
+      {renderTabContent()}
+    </>
+  );
 }

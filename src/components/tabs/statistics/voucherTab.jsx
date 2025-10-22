@@ -31,6 +31,7 @@ const VoucherTab = () => {
 
       setUsageSummary(summaryRes?.data || {});
       setTopVouchers(topRes?.data || []);
+      console.log("Top Res ", topRes.data);
       setRevenueImpact(revenueRes?.data || {});
     } catch (err) {
       toast.error("Lỗi khi tải dữ liệu voucher");

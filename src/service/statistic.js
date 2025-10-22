@@ -94,7 +94,7 @@ export const getOrderStatusDistribution = async (from, to) => {
 
 export const getOrdersByTimeSlot = async (limit) => {
   try {
-    const res = await authApi.get("/statistics/store/orders/by-time-slot");
+    const res = await authApi.get("/statistics/store/order/by-time-slot");
     return res.data;
   } catch (error) {
     console.error(error);

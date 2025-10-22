@@ -27,7 +27,7 @@ export const getOwneStore = async () => {
 };
 
 export const logoutUser = async () => {
-  const res = await axios.get("/auth/logout");
+  const res = await publicApi.get("/auth/logout");
   localStorageService.clearAll();
 };
 

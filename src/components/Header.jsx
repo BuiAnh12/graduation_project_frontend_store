@@ -1,7 +1,7 @@
 "use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -12,17 +12,21 @@ import {
 import useLogout from "@/hooks/useLogout";
 import localStorageService from "@/utils/localStorageService";
 
-const Header = ({ title, goBack }) => {
+const Header = ({ title: propTitle, goBack }) => {
   const router = useRouter();
   const logoutUser = useLogout();
+  const [title, setTitle] = useState(propTitle || "");
 
-  if (!title) {
-    const storeName = localStorageService.getStoreName();
-    title = storeName;
-  }
+  useEffect(() => {
+    if (!propTitle) {
+      const storeName = localStorageService.getStoreName();
+      setTitle(storeName || "");
+    }
+  }, [propTitle]);
 
   const handleLogout = async () => {
     try {
+      localStorage.clear();
       await logoutUser();
     } catch (error) {
       console.error("Logout failed", error);
@@ -33,7 +37,6 @@ const Header = ({ title, goBack }) => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-4 py-3 flex items-center justify-between">
-      {/* Left Side: Back Button or Title */}
       <div className="flex items-center space-x-4">
         {goBack && (
           <button
@@ -52,9 +55,7 @@ const Header = ({ title, goBack }) => {
         <h1 className="text-lg font-semibold text-gray-800">{title}</h1>
       </div>
 
-      {/* Right Side: Notification + User */}
       <div className="flex items-center space-x-6">
-        {/* Notifications */}
         <Link href="/notifications" className="hover:opacity-80">
           <Image
             src="/assets/notification.png"
@@ -65,7 +66,6 @@ const Header = ({ title, goBack }) => {
           />
         </Link>
 
-        {/* Dropdown User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="focus:outline-none hover:opacity-80">
