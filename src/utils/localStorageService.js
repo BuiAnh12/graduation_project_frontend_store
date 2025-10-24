@@ -46,8 +46,7 @@ const localStorageService = {
   },
   getToken: () => {
     if (!isBrowser) return null;
-    const val = localStorage.getItem(TOKEN_KEY);
-    return val ? JSON.parse(val) : null;
+    return localStorage.getItem(TOKEN_KEY);
   },
   getRole: () => {
     if (!isBrowser) return null;

@@ -28,7 +28,6 @@ export const getOwneStore = async () => {
 
 export const logoutUser = async () => {
   const res = await publicApi.get("/auth/logout");
-  localStorageService.clearAll();
 };
 
 export const checkStoreOwnerEmail = async (email) => {

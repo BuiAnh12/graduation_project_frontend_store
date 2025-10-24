@@ -87,7 +87,6 @@ const Page = () => {
           const statusResponse = await checkStoreStatus(
             loginResult.data.storeId
           );
-          console.log("Status response: ", statusResponse);
           if (statusResponse.success) {
             if (statusResponse.data === "approved") {
               toast.success("Đăng nhập thành công!");
@@ -108,9 +107,14 @@ const Page = () => {
         }
       } catch (err) {
         console.log(err);
-        toast.error("Đăng nhập thất bại!");
+        if (err.data.errorCode === "INVALID_CREDENTIALS") {
+          toast.error("Email hoặc mật khẩu không chính xác!");
+        } else if (err.data.errorCode === "ACCOUNT_BLOCKED") {
+          toast.error("Tài khoản của bạn đã bị khóa!");
+        } else {
+          toast.error("Đăng nhập thất bại!");
+        }
       }
-      formik.resetForm();
     },
   });
 

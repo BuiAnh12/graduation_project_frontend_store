@@ -1,11 +1,6 @@
-// "use client";
-// import Protected from "../../hooks/useRoleProted";
-
-// export default function Layout({ children }) {
-//   return <Protected role={["staff", "manager", "owner"]}>{children}</Protected>;
-// }
 "use client";
+import Protected from "@/hooks/useRoleProtected";
 
 export default function Layout({ children }) {
-  return <>{children}</>;
+  return <Protected role={["STORE_OWNER", "MANAGER"]}>{children}</Protected>;
 }
