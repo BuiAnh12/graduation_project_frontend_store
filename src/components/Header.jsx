@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,7 @@ const Header = ({ title: propTitle, goBack }) => {
   const router = useRouter();
   const logoutUser = useLogout();
   const [title, setTitle] = useState(propTitle || "");
+  const [hasNewNotification, setHasNewNotification] = useState(false);
 
   useEffect(() => {
     if (!propTitle) {
@@ -56,7 +57,11 @@ const Header = ({ title: propTitle, goBack }) => {
       </div>
 
       <div className="flex items-center space-x-6">
-        <Link href="/notifications" className="hover:opacity-80">
+        <Link
+          href="/notifications"
+          className="relative hover:opacity-80"
+          onClick={() => setHasNewNotification(false)} // 👈 bấm vào thì tắt chấm đỏ
+        >
           <Image
             src="/assets/notification.png"
             alt="Notifications"

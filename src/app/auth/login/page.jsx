@@ -93,6 +93,7 @@ const Page = () => {
               localStorageService.setToken(loginResult.data.token);
               localStorageService.setStoreId(loginResult.data.storeId);
               localStorageService.setStoreName(loginResult.data.storeName);
+              localStorageService.setUserId(loginResult.data._id);
               router.push("/home");
             }
             if (statusResponse.data === "register") {
