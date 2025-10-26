@@ -19,7 +19,7 @@ const page = () => {
   return (
     <div className="pt-[30px] pb-[100px] md:pt-[75px]">
       <div className="hidden md:block">
-        <Header page="notifications" />
+        <Header title="Thông báo" goBack={true} />
       </div>
 
       <div className="pt-[20px] lg:w-[60%] md:w-[80%] md:mx-auto">
