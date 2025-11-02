@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAllOrders, updateOrder } from "@/service/order";
-
+import { cancelOrder, getAllOrders, updateOrder } from "@/service/order";
+import Swal from "sweetalert2";
 import ReactPaginate from "react-paginate";
 import { ClipLoader } from "react-spinners";
-
+import { FaTimes } from "react-icons/fa";
 const OrderCard = ({ order, orderIndex, refetch }) => {
   const [cartPrice, setCartPrice] = useState(0);
   const [cartQuantity, setCartQuantity] = useState(0);
@@ -22,6 +22,41 @@ const OrderCard = ({ order, orderIndex, refetch }) => {
       console.error("Failed to update order:", error);
     }
   };
+
+const handleCancelOrder = async () => {
+  if (!order) return;
+
+  const result = await Swal.fire({
+    title: "Bạn có chắc muốn hủy đơn hàng này không?",
+    text: "Hành động này không thể hoàn tác!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Có, hủy đơn!",
+    cancelButtonText: "Không",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const res = await cancelOrder(order._id);
+      await Swal.fire({
+        icon: "success",
+        title: "Đã hủy đơn hàng thành công!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      refetch(); // load lại danh sách
+    } catch (error) {
+      console.error("Failed to cancel order:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Hủy đơn thất bại",
+        text: "Đã xảy ra lỗi trong quá trình xử lý.",
+      });
+    }
+  }
+};
 
   const router = useRouter();
 
@@ -65,6 +100,14 @@ const OrderCard = ({ order, orderIndex, refetch }) => {
               {cartQuantity} Món /{order.finalTotal}đ
             </p>
           </div>
+        </div>
+        <div>
+          <button
+            className="p-2 rounded-full hover:bg-gray-200 cursor-pointer"
+            onClick={handleCancelOrder}
+          >
+            <FaTimes size={16} className="text-red-600" />
+          </button>
         </div>
       </div>
 

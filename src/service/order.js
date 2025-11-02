@@ -38,3 +38,12 @@ export const updateOrder = async ({ orderId, updatedData }) => {
     throw error.response;
   }
 };
+
+export const cancelOrder = async (orderId) => {
+  try {
+    const res = await authApi.patch(`/order/${orderId}/cancel-store`);
+    return res.data;
+  } catch (error) {
+    throw error.response;
+  }
+};

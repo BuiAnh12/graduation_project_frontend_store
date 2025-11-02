@@ -24,7 +24,7 @@ export default function OrderItemRow({
       <div className="flex items-start gap-4">
         <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-gray-100 shrink-0">
           {(catalog?.image?.url || item.dish?.image?.url) && (
-            <Image
+            <img
               src={catalog?.image?.url || item.dish?.image?.url}
               alt={item.dishName || catalog?.name || "Dish"}
               fill
