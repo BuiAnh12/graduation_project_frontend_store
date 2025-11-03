@@ -89,7 +89,7 @@ const VoucherTab = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <SummaryCard
                 title="Số lượt sử dụng"
-                value={usageSummary?.totalUsed || 0}
+                value={usageSummary?.requestedTimeFrameUsed || 0}
               />
               <SummaryCard
                 title="Số voucher đã phát hành"
@@ -127,12 +127,12 @@ const VoucherTab = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <SummaryCard
                 title="Tổng doanh thu giảm do áp dụng voucher"
-                value={`${(revenueImpact?.revenueLost || 0).toLocaleString()}₫`}
+                value={`${(revenueImpact?.revenueAfterDiscount || 0).toLocaleString()}₫`}
               />
               <SummaryCard
                 title="Tổng giá trị đơn hàng sử dụng voucher"
                 value={`${(
-                  revenueImpact?.totalVoucherOrderValue || 0
+                  revenueImpact?.totalDiscountAmount || 0
                 ).toLocaleString()}₫`}
               />
             </div>

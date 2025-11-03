@@ -221,13 +221,13 @@ const Page = () => {
                       Loại giảm giá
                     </th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
-                      Giới hạn
+                      Gía trị
                     </th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
-                      Đã dùng
+                      Số lượng
                     </th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
-                      Trạng thái
+                      Đã dùng 
                     </th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
                       Hành động

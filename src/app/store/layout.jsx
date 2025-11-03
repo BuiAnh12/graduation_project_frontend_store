@@ -6,4 +6,3 @@ export default function Layout({ children }) {
     <Protected role={["STORE_OWNER", "MANAGER"]}>{children}</Protected>
   );
 }
-F
