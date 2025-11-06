@@ -39,9 +39,35 @@ export const updateOrder = async ({ orderId, updatedData }) => {
   }
 };
 
+export const finishedOrder = async (orderId) => {
+  try {
+    const res = await authApi.patch(`/order/${orderId}/finish`);
+    return res.data;
+  } catch (error) {
+    throw error.response;
+  }
+};
+
 export const cancelOrder = async (orderId) => {
   try {
     const res = await authApi.patch(`/order/${orderId}/cancel-store`);
+    return res.data;
+  } catch (error) {
+    throw error.response;
+  }
+};
+
+export const resendNotificationToShipper = async (orderId) => {
+  try {
+    const res = await authApi.patch(`/order/${orderId}/resend-noti`);
+    return res.data;
+  } catch (error) {
+    throw error.response;
+  }
+};
+export const deliveryByStore = async (orderId) => {
+  try {
+    const res = await authApi.patch(`/order/${orderId}/delivery-by-store`);
     return res.data;
   } catch (error) {
     throw error.response;

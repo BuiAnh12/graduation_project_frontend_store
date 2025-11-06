@@ -6,7 +6,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Dropdown from "@/components/Dropdown";
 import generateOrderNumber from "../../utils/generateOrderNumber";
 import ReactPaginate from "react-paginate";
-import { getAllOrders, updateOrder } from "@/service/order";
+import Swal from "sweetalert2";
+import {
+  deliveryByStore,
+  finishedOrder,
+  getAllOrders,
+  resendNotificationToShipper,
+  updateOrder,
+} from "@/service/order";
 import { ClipLoader } from "react-spinners";
 import localStorageService from "@/utils/localStorageService"; // <-- make sure this path is correct
 
@@ -50,28 +57,82 @@ const OrderCard = ({ order, orderIndex, refetch }) => {
 
   const handleUpdateOrderToFinish = async () => {
     try {
-      await updateOrder({
-        orderId: order._id,
-        updatedData: { ...order, status: "finished" },
-      });
+      await finishedOrder(order._id);
       refetch();
     } catch (err) {
       console.error("Update failed:", err);
     }
   };
 
-  const handleUpdateOrderToTaken = async () => {
-    try {
-      await updateOrder({
-        orderId: order._id,
-        updatedData: { ...order, status: "taken" },
-      });
-      refetch();
-    } catch (err) {
-      console.error("Update failed:", err);
+  const handleResendNotification = async () => {
+    const result = await Swal.fire({
+      title: "Gửi lại thông báo",
+      text: "Xác nhận gửi lại thông báo để tìm kiếm tài xế?",
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Có, xác nhận!",
+      cancelButtonText: "Hủy",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await resendNotificationToShipper(order._id);
+        refetch();
+
+        Swal.fire({
+          icon: "success",
+          title: "Đã xác nhận!",
+          text: "Đơn hàng của bạn đang được thông báo cho các shipper khả dụng.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        console.error("Update failed:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Thất bại!",
+          text: "Không thể gửi lại thông bao.",
+        });
+      }
     }
   };
 
+  const handleUpdateOrderToStoreDelivering = async () => {
+    const result = await Swal.fire({
+      title: "Xác nhận giao hàng",
+      text: "Bạn có chắc chắn muốn tự giao đơn hàng này không?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Có, xác nhận!",
+      cancelButtonText: "Hủy",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deliveryByStore(order._id);
+        refetch();
+
+        Swal.fire({
+          icon: "success",
+          title: "Đã xác nhận!",
+          text: "Đơn hàng đã được cập nhật thành 'Tự giao hàng'.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        console.error("Update failed:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Thất bại!",
+          text: "Không thể cập nhật trạng thái đơn hàng.",
+        });
+      }
+    }
+  };
   return (
     <div className="border rounded-lg shadow-md p-4 bg-white mb-4">
       <Link href={`orders/${order._id}`} passHref>
@@ -91,28 +152,41 @@ const OrderCard = ({ order, orderIndex, refetch }) => {
           <p className="text-sm font-medium text-gray-800">
             {order.users?.name ?? "Unknown"}
           </p>
-          <p className="text-sm text-gray-600">Đang tìm tài xế</p>
+          <div className="flex justify-between">
+            <p className="text-sm text-gray-600">Đang tìm tài xế</p>
+            <div className="text-sm text-gray-600">{cartQuantity} món</div>
+          </div>
         </div>
       </Link>
 
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-gray-600">{cartQuantity} món</div>
-        {order.status === "finished" ? (
+      {order.status === "preparing" ? (
+        <div className="flex justify-end mt-2">
           <button
-            className="px-4 py-2 text-white bg-[#fc6011] rounded-sm hover:bg-[#e9550f]"
-            onClick={handleUpdateOrderToTaken}
-          >
-            Giao tài xế
-          </button>
-        ) : (
-          <button
-            className="px-4 py-2 text-white bg-[#fc6011] rounded-sm hover:bg-[#e9550f]"
+            className="px-4 py-2 text-white bg-[#fc6011] rounded-sm hover:bg-[#e9550f] cursor-pointer"
             onClick={handleUpdateOrderToFinish}
           >
             Thông báo tài xế
           </button>
-        )}
-      </div>
+        </div>
+      ) : order.status === "finished" ? (
+        <div className="flex md:flex-row flex-col justify-between gap-2 mt-2">
+          <button
+            className="flex items-center px-4 py-2 text-white bg-blue-500 rounded-sm hover:bg-blue-600 cursor-pointer"
+            onClick={handleUpdateOrderToStoreDelivering}
+          >
+            Tự giao hàng
+          </button>
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-white bg-gray-400 rounded-sm hover:bg-gray-500 cursor-pointer"
+            onClick={handleResendNotification}
+          >
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            Đang tìm tài xế ...
+          </button>
+        </div>
+      ) : (
+        <p>Đơn hàng đang được vận chuyển</p>
+      )}
     </div>
   );
 };
