@@ -47,12 +47,12 @@ export const SocketProvider = ({ children }) => {
     });
 
     // 🔁 Gỡ listener cũ trước khi đăng ký mới (tránh trùng)
-    newSocket.off("getAllNotifications");
+    newSocket.off("getAllStoreNotifications");
     newSocket.off("newNotification");
     newSocket.off("newOrderNotification");
 
     // 📦 Lắng nghe danh sách thông báo
-    newSocket.on("getAllNotifications", (all) => {
+    newSocket.on("getAllStoreNotifications", (all) => {
       // use .id (socket.io client) instead of _id — _id can be undefined
       console.log("📬 Received all notifications:", newSocket.id);
       setNotifications(all || []);
