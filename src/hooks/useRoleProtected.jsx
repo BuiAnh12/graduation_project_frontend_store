@@ -34,13 +34,13 @@ export default function Protected({ role = [], children }) {
         const { role: tokenRoles, exp } = decoded;
 
         // Token hết hạn
-        const now = Date.now() / 1000;
-        if (exp && exp < now) {
-          console.warn("Token expired");
-          localStorageService.clearAll();
-          router.replace("/unauthorize");
-          return;
-        }
+        // const now = Date.now() / 1000;
+        // if (exp && exp < now) {
+        //   console.warn("Token expired");
+        //   localStorageService.clearAll();
+        //   router.replace("/unauthorize");
+        //   return;
+        // }
 
         // Kiểm tra trạng thái cửa hàng
         const isBlocked = store?.status === "BLOCKED";
