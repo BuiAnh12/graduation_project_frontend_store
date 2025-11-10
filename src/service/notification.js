@@ -4,9 +4,8 @@ export const getAllNotifications = async () => {
   try {
     const res = await authApi.get("/notification/get-all-notifications");
     return res.data;
-  } catch (error) {
-    console.error("Get all notifications error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
+  } catch (err) {
+    throw err.response.data || err.response;
   }
 };
 
@@ -16,8 +15,7 @@ export const updateNotificationStatus = async (notificationId) => {
       `/notification/update-notification/${notificationId}`
     );
     return res.data;
-  } catch (error) {
-    console.error("Update notification status error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
+  } catch (err) {
+    throw err.response.data || err.response;
   }
 };

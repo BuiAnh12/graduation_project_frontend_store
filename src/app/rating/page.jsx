@@ -6,7 +6,8 @@ import Modal from "@/components/Modal";
 import ReactPaginate from "react-paginate";
 import { ThreeDots } from "react-loader-spinner";
 import Header from "@/components/Header";
-
+import { getErrorMessage } from "@/data/errorMessages";
+import { toast } from "react-toastify";
 const StoreReviewPage = () => {
   const [reviews, setReviews] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -34,7 +35,7 @@ const StoreReviewPage = () => {
         setTotalPages(res.meta?.totalPages || 0);
       }
     } catch (err) {
-      console.error("Error fetching reviews:", err);
+      toast.error(getErrorMessage(err.errorCode));
     } finally {
       setLoading(false);
     }
@@ -55,6 +56,8 @@ const StoreReviewPage = () => {
       if (res?.success) {
         setSelectedReview(null);
         fetchReviews(); // refresh lại list
+      } else {
+        toast.error("Có lỗi xảy ra.");
       }
     }
   };

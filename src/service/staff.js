@@ -8,7 +8,7 @@ export const checkEmail = async (email) => {
     });
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -19,7 +19,7 @@ export const getStaff = async (storeId, query = {}) => {
     });
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -28,7 +28,7 @@ export const createStaff = async (data) => {
     const res = await authApi.post("/staff", data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -37,7 +37,7 @@ export const updateStaff = async (staffId, data) => {
     const res = await authApi.put(`/staff/${staffId}`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -46,7 +46,7 @@ export const getStaffDetail = async (staffId) => {
     const res = await authApi.get(`/staff/detail/${staffId}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -55,7 +55,7 @@ export const deleteStaff = async (storeId, staffId) => {
     const res = await authApi.delete(`/staff/${storeId}/${staffId}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -64,6 +64,6 @@ export const toggleStatusStaff = async (staffId) => {
     const res = await authApi.put(`/staff/${staffId}/toggle-status`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };

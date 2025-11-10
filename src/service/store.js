@@ -9,7 +9,7 @@ export const registerStore = async (data) => {
     });
     return response.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -22,7 +22,6 @@ export const checkStoreStatus = async (storeId) => {
     });
     return response.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
-

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { changePassword } from "@/service/auth";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { getErrorMessage } from "@/data/errorMessages";
 const ChangePasswordPopup = ({ onClose, employee }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,7 +25,7 @@ const ChangePasswordPopup = ({ onClose, employee }) => {
       toast.success("Đổi mật khẩu thành công!");
       onClose();
     } catch (error) {
-      toast.error(error);
+      toast.error(getErrorMessage(error.errorCode));
     }
   };
 

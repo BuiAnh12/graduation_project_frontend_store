@@ -8,7 +8,7 @@ import ChangePasswordPopup from "@/components/popups/Account/ChangePasswordPopup
 import UpdateAccountInfoPopup from "@/components/popups/Account/UpdateAccountInfoPopup";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { getProfile, checkCurrentPassword } from "@/service/profile";
-
+import { getErrorMessage } from "@/data/errorMessages";
 const Page = () => {
   const [account, setAccount] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,7 +31,9 @@ const Page = () => {
       const response = await getProfile();
       setAccount(response.data);
     } catch (error) {
-      console.error("Error get info:", error);
+      toast.error(
+        getErrorMessage(error.errorCode) || "Lỗi khi lấy thông tin cá nhân"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +61,7 @@ const Page = () => {
         toast.error("Mật khẩu nhập lại không đúng!");
       }
     } catch (error) {
-      toast.error(error);
+      toast.error(getErrorMessage(error.errorCode));
     }
   };
 

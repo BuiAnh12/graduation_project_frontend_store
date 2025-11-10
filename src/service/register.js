@@ -6,8 +6,7 @@ export const checkOwnerInfo = async (formData) => {
     const res = await axios.post(`/auth/check-register-store-owner`, formData);
     return res.data;
   } catch (error) {
-    console.error("Check info error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
+    throw error.response.data || error.response;
   }
 };
 

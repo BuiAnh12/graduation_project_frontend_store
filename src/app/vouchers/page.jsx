@@ -17,6 +17,7 @@ import { FaEdit, FaTrash, FaLock, FaUnlock } from "react-icons/fa";
 import AddVoucher from "@/components/popups/Voucher/AddVoucher";
 import EditVoucher from "@/components/popups/Voucher/EditVoucher";
 import DetailVoucher from "@/components/popups/Voucher/DetailVoucher";
+import { getErrorMessage } from "@/data/errorMessages";
 const Page = () => {
   const [vouchers, setVouchers] = useState([]);
   const [storeId] = useState(localStorageService.getStoreId());
@@ -50,7 +51,9 @@ const Page = () => {
         console.error("Lỗi khi lấy voucher:", res.message);
       }
     } catch (error) {
-      console.error("Lỗi khi gọi API voucher:", error);
+      toast.error(
+        getErrorMessage(error.errorCode) || "Lỗi khi gọi API voucher"
+      );
     }
   };
 
@@ -73,8 +76,7 @@ const Page = () => {
         toast.error(res.message || "Không thể thêm voucher");
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Lỗi khi tạo voucher");
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi tạo voucher");
     }
   };
 
@@ -91,8 +93,7 @@ const Page = () => {
         toast.error(res.message || "Không thể cập nhật voucher");
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Lỗi khi cập nhật voucher");
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi cập nhật voucher");
     }
   };
   const handleDeleteVoucher = async (voucherId) => {
@@ -118,7 +119,11 @@ const Page = () => {
           Swal.fire("Lỗi!", res.message || "Xóa voucher thất bại", "error");
         }
       } catch (err) {
-        Swal.fire("Lỗi!", err.message || "Xóa voucher thất bại", "error");
+        Swal.fire(
+          "Lỗi!",
+          getErrorMessage(err.errorCode) || "Xóa voucher thất bại",
+          "error"
+        );
       }
     }
   };
@@ -156,7 +161,7 @@ const Page = () => {
       } catch (err) {
         Swal.fire(
           "Lỗi!",
-          err.message || "Thay đổi trạng thái thất bại",
+          getErrorMessage(err.errorCode) || "Thay đổi trạng thái thất bại",
           "error"
         );
       }
@@ -227,7 +232,7 @@ const Page = () => {
                       Số lượng
                     </th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
-                      Đã dùng 
+                      Đã dùng
                     </th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 whitespace-nowrap">
                       Hành động

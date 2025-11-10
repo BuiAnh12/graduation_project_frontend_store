@@ -11,6 +11,7 @@ import {
   updateCategory,
   deleteCategory,
 } from "@/service/category";
+import { getErrorMessage } from "@/data/errorMessages";
 import localStorageService from "@/utils/localStorageService";
 
 const Page = () => {
@@ -29,11 +30,9 @@ const Page = () => {
     try {
       setIsLoading(true);
       const res = await getAllCategories(storeId);
-      console.log("RES CATE", res);
       setCategories(res?.data || []);
     } catch (err) {
-      toast.error("Lỗi khi tải danh mục");
-      console.error(err);
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi tải danh mục");
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +53,7 @@ const Page = () => {
       setCategoryName("");
       await fetchCategories();
     } catch (err) {
-      toast.error("Tạo danh mục thất bại");
+      toast.error(getErrorMessage(err.errorCode) || "Tạo danh mục thất bại");
       console.error(err);
     }
   };
@@ -73,8 +72,9 @@ const Page = () => {
       setSelectedCategory(null);
       await fetchCategories();
     } catch (err) {
-      toast.error("Cập nhật danh mục thất bại");
-      console.error(err);
+      toast.error(
+        getErrorMessage(err.errorCode) || "Cập nhật danh mục thất bại"
+      );
     }
   };
 
@@ -88,8 +88,7 @@ const Page = () => {
       setSelectedCategory(null);
       await fetchCategories();
     } catch (err) {
-      toast.error("Xóa danh mục thất bại");
-      console.error(err);
+      toast.error(getErrorMessage(err.errorCode) || "Xóa danh mục thất bại");
     }
   };
 

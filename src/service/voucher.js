@@ -8,7 +8,7 @@ export const getVouchersByStore = async (storeId, query = {}) => {
     });
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -17,7 +17,7 @@ export const getDetailVoucher = async (voucherId) => {
     const res = await publicApi.get(`/voucher/detail/${voucherId}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -26,7 +26,7 @@ export const createVoucher = async (storeId, data) => {
     const res = await authApi.post(`/voucher/${storeId}`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -35,7 +35,7 @@ export const updateVoucher = async (storeId, data) => {
     const res = await authApi.put(`/voucher/${storeId}`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -44,7 +44,7 @@ export const deleteVoucher = async (voucherId) => {
     const res = await authApi.delete(`/voucher/${voucherId}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -53,6 +53,6 @@ export const toggleVoucherActiveStatus = async (storeId, voucherId) => {
     const res = await authApi.put(`/voucher/toggle/${storeId}/${voucherId}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };

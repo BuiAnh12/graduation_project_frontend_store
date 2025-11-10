@@ -2,7 +2,7 @@ import { useRouter } from "next/navigation";
 import { updateOrder } from "@/service/order";
 import Modal from "@/components/Modal";
 import { useState } from "react";
-
+import { getErrorMessage } from "@/data/errorMessages";
 const LatestOrder = ({ order }) => {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
@@ -15,7 +15,9 @@ const LatestOrder = ({ order }) => {
       setShowModal(false);
       router.back();
     } catch (err) {
-      console.error("Update failed:", err);
+      toast.error(
+        getErrorMessage(err.errorCode) || "Cập nhật thông tin thất bại"
+      );
     }
   };
   return (

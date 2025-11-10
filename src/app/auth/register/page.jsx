@@ -6,6 +6,7 @@ import Step2BasicStoreInfo from "@/components/registers/Step2BasicStoreInfo";
 import Step3StoreAddress from "@/components/registers/Step3StoreAddress";
 import Step4Paperwork from "@/components/registers/Step4Paperwork";
 import Step5Confirm from "@/components/registers/Step5Confirm";
+
 // import các bước tiếp theo nếu có
 
 const RegisterPage = () => {

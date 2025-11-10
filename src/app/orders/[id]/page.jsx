@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import LatestOrder from "@/components/fragments/LatestOrder";
 import ConfirmedOrder from "@/components/fragments/ConfirmedOrder";
 import HistoryOrder from "@/components/fragments/HistoryOrder";
-
+import { getErrorMessage } from "@/data/errorMessages";
 const OrderDetailsPage = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
@@ -25,8 +25,7 @@ const OrderDetailsPage = () => {
         console.log(response);
         setOrder(response?.data);
       } catch (err) {
-        console.error("Failed to fetch order:", err);
-        setError("Lỗi khi tải đơn hàng.");
+        setError(getErrorMessage(err.errorCode) || "Lỗi khi tải đơn hàng.");
       } finally {
         setIsLoading(false);
       }

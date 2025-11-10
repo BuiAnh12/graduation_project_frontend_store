@@ -4,7 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { checkOTP, forgotPassword } from "@/service/auth";
 import { useRouter } from "next/navigation";
-
+import { getErrorMessage } from "@/data/errorMessages";
 const Page = () => {
   const router = useRouter();
   const inputsRef = useRef([]);
@@ -88,7 +88,10 @@ const Page = () => {
         router.push("/auth/reset-password");
       }, 1500);
     } catch (error) {
-      toast.error(error.message || "The OTP hết hạn hoặc không chính xác");
+      toast.error(
+        getErrorMessage(error.errorCode) ||
+          "Mã OTP hết hạn hoặc không chính xác"
+      );
     } finally {
       setLoading(false);
     }
@@ -104,7 +107,7 @@ const Page = () => {
       inputsRef.current[0]?.focus();
     } catch (error) {
       console.log(error);
-      toast.error(error.message || "Gửi lại OTP thất bại!");
+      toast.error(getErrorMessage(error.errorCode) || "Gửi lại OTP thất bại!");
     }
   };
 

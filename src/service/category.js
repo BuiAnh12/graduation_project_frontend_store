@@ -5,7 +5,7 @@ export const getAllCategories = async (storeId) => {
     const res = await publicApi.get(`/category/store/${storeId}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -14,7 +14,7 @@ export const createCategory = async (data) => {
     const res = await authApi.post("/category", data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -23,7 +23,7 @@ export const updateCategory = async (id, data) => {
     const res = await authApi.put(`/category/${id}`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -32,7 +32,7 @@ export const getCategory = async (id) => {
     const res = await authApi.get(`/category/${id}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -41,6 +41,6 @@ export const deleteCategory = async (id) => {
     const res = await authApi.delete(`/category/${id}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };

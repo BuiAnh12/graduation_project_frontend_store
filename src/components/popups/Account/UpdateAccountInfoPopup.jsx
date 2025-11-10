@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { updateProfileInfo } from "@/service/profile";
 import { uploadImage } from "@/service/upload";
-
+import { getErrorMessage } from "@/data/errorMessages";
 const UpdateAccountInfoPopup = ({
   account,
   setShowUpdatePopup,
@@ -68,8 +68,7 @@ const UpdateAccountInfoPopup = ({
         if (onAccountUpdate) onAccountUpdate();
       }
     } catch (error) {
-      console.error("❌ Error updating account:", error);
-      toast.error(error.response?.data?.message || "Update failed!");
+      toast.error(getErrorMessage(error.errorCode) || "Update failed!");
     } finally {
       setLoading(false);
     }

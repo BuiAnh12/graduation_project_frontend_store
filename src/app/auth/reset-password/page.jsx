@@ -6,6 +6,7 @@ import { resetPasswordWithEmail } from "@/service/auth";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { getErrorMessage } from "@/data/errorMessages";
 const Page = () => {
   const router = useRouter();
   const [password, setPassword] = useState("");
@@ -39,7 +40,7 @@ const Page = () => {
       toast.success("Đổi mật khẩu mới thành công!");
       router.push("/auth/login");
     } catch (error) {
-      toast.error(error);
+      toast.error(getErrorMessage(error.errorCode));
     }
   };
 

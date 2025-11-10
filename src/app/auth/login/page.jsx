@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { login } from "@/service/auth";
 import localStorageService from "@/utils/localStorageService";
 import { checkStoreStatus } from "@/service/store";
-
+import { getErrorMessage } from "@/data/errorMessages";
 const Page = () => {
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
@@ -40,7 +40,7 @@ const Page = () => {
         toast.error("Lỗi không tìm thấy cửa hàng");
       }
     } catch (err) {
-      console.error("Error checking store status:", err);
+      console.error(getErrorMessage(err.errorCode));
       return "NONE";
     }
   };
@@ -107,14 +107,7 @@ const Page = () => {
           }
         }
       } catch (err) {
-        console.log(err);
-        if (err.data.errorCode === "INVALID_CREDENTIALS") {
-          toast.error("Email hoặc mật khẩu không chính xác!");
-        } else if (err.data.errorCode === "ACCOUNT_BLOCKED") {
-          toast.error("Tài khoản của bạn đã bị khóa!");
-        } else {
-          toast.error("Đăng nhập thất bại!");
-        }
+        toast.error(getErrorMessage(err.errorCode));
       }
     },
   });

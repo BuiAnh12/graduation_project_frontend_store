@@ -15,6 +15,7 @@ import Swal from "sweetalert2";
 import { FaEdit, FaTrash, FaLock, FaUnlock } from "react-icons/fa";
 import AddStaff from "@/components/popups/Staff/AddStaff";
 import EditStaff from "@/components/popups/Staff/EditStaff";
+import { getErrorMessage } from "@/data/errorMessages";
 
 const Page = () => {
   const [staff, setStaff] = useState([]);
@@ -44,10 +45,12 @@ const Page = () => {
         setStaff(res.data);
         setTotalPages(res.meta?.totalPages || 1);
       } else {
-        console.error("Lỗi khi lấy nhân viên:", res.message);
+        toast.error("Lỗi khi lấy nhân viên");
       }
     } catch (error) {
-      console.error("Lỗi khi gọi API nhân viên:", error);
+      toast.error(
+        getErrorMessage(error.errorCode) || "Lỗi khi gọi API nhân viên"
+      );
     }
   };
 
@@ -69,8 +72,7 @@ const Page = () => {
         toast.error(res.message || "Không thể thêm nhân viên");
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Lỗi khi tạo nhân viên");
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi tạo nhân viên");
     }
   };
 
@@ -87,8 +89,9 @@ const Page = () => {
         toast.error(res.message || "Không thể cập nhật nhân viên");
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Lỗi khi cập nhật nhân viên");
+      toast.error(
+        getErrorMessage(err.errorCode) || "Lỗi khi cập nhật nhân viên"
+      );
     }
   };
   // ✅ Xóa nhân viên
@@ -115,7 +118,11 @@ const Page = () => {
           Swal.fire("Lỗi!", res.message || "Xóa nhân viên thất bại", "error");
         }
       } catch (err) {
-        Swal.fire("Lỗi!", err.message || "Xóa nhân viên thất bại", "error");
+        Swal.fire(
+          "Lỗi!",
+          getErrorMessage(err.errorCode) || "Xóa nhân viên thất bại",
+          "error"
+        );
       }
     }
   };
@@ -153,7 +160,7 @@ const Page = () => {
       } catch (err) {
         Swal.fire(
           "Lỗi!",
-          err.message || "Thay đổi trạng thái thất bại",
+          getErrorMessage(err.errorCode) || "Thay đổi trạng thái thất bại",
           "error"
         );
       }

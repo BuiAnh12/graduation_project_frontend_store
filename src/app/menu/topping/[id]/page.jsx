@@ -14,6 +14,7 @@ import {
 } from "@/service/topping";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getErrorMessage } from "@/data/errorMessages";
 
 const Page = () => {
   const { id: groupId } = useParams();
@@ -74,8 +75,9 @@ const Page = () => {
       setIsEditModalOpen(false);
       toast.success("Cập nhật topping thành công!");
     } catch (err) {
-      console.error("Failed to update topping:", err);
-      toast.error("Lỗi khi cập nhật topping!");
+      toast.error(
+        getErrorMessage(err.errorCode) || "Lỗi khi cập nhật topping!"
+      );
     }
   };
 
@@ -93,8 +95,7 @@ const Page = () => {
       setNewToppingPrice("");
       toast.success("Thêm topping thành công!");
     } catch (err) {
-      console.error("Failed to add topping:", err);
-      toast.error("Lỗi khi thêm topping!");
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi thêm topping!");
     }
   };
 
@@ -104,8 +105,7 @@ const Page = () => {
       await fetchToppings();
       toast.success("Xóa topping thành công!");
     } catch (err) {
-      console.error("Failed to remove topping:", err);
-      toast.error("Lỗi khi xóa topping!");
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi xóa topping!");
     }
   };
 
@@ -120,8 +120,9 @@ const Page = () => {
       toast.success("Xóa nhóm topping thành công!");
       router.push("/menu");
     } catch (err) {
-      console.error("Failed to delete topping group:", err);
-      toast.error("Đã xảy ra lỗi khi xóa nhóm topping!");
+      toast.error(
+        getErrorMessage(err.errorCode) || "Đã xảy ra lỗi khi xóa nhóm topping!"
+      );
     }
   };
 

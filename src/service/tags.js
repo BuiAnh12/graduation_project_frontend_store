@@ -5,7 +5,7 @@ export const getAllTags = async () => {
     const res = await publicApi.get(`/tags/all`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -21,6 +21,6 @@ export const predictTags = async (file) => {
     });
     return res.data;
   } catch (error) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };

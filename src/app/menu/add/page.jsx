@@ -10,7 +10,7 @@ import { getAllCategories } from "@/service/category";
 import { getAllTags, predictTags } from "@/service/tags";
 import { uploadImage } from "@/service/upload";
 import localStorageService from "@/utils/localStorageService";
-
+import { getErrorMessage } from "@/data/errorMessages";
 const CreateDish = () => {
   const router = useRouter();
   const [storeId, setStoreId] = useState(localStorageService.getStoreId());
@@ -45,9 +45,7 @@ const CreateDish = () => {
       const res = await getAllCategories(storeId);
       setAllCategories(res?.data || []);
     } catch (err) {
-      toast.error("Lỗi khi tải danh mục");
-      console.error(err);
-    } finally {
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi tải danh mục");
     }
   };
 
@@ -59,9 +57,7 @@ const CreateDish = () => {
       setFoodTags(res?.data.foodTags || []);
       setTasteTags(res?.data.tasteTags || []);
     } catch (err) {
-      toast.error("Lỗi khi tải danh mục");
-      console.error(err);
-    } finally {
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi tải danh mục");
     }
   };
 
@@ -70,9 +66,8 @@ const CreateDish = () => {
       const res = await getAllToppingsGroupByStore(storeId);
       setAllToppings(res?.data || []);
     } catch (err) {
-      toast.error("Lỗi khi tải danh mục");
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi tải danh mục");
       console.error(err);
-    } finally {
     }
   };
 
@@ -166,8 +161,7 @@ const CreateDish = () => {
       toast.success("Tạo món ăn thành công!");
       router.back();
     } catch (err) {
-      console.error("Tạo món ăn thất bại:", err);
-      toast.error("Không thể tạo món ăn");
+      toast.error(getErrorMessage(err.errorCode) || "Không thể tạo món ăn");
     }
   };
 
@@ -215,8 +209,9 @@ const CreateDish = () => {
       setSelectedTags(newSelected);
       toast.success("Đã gợi ý thẻ thành công!");
     } catch (err) {
-      console.error("Predict tags failed:", err);
-      toast.error("Không thể gợi ý thẻ tự động");
+      toast.error(
+        getErrorMessage(err.errorCode) || "Không thể gợi ý thẻ tự động"
+      );
     }
   };
 

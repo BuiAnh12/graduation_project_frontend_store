@@ -6,7 +6,7 @@ export const getRevenueSummary = async () => {
     const res = await authApi.get("/statistics/store/revenue/summary");
     return res.data;
   } catch (error) {
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -17,8 +17,7 @@ export const getRevenueByDay = async (from, to) => {
     });
     return res.data;
   } catch (error) {
-    console.error("Get revenue by day error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
+    throw error.response.data || error.response;
   }
 };
 
@@ -29,8 +28,7 @@ export const getRevenueByItem = async (limit) => {
     });
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -39,8 +37,7 @@ export const getRevenueByCategory = async () => {
     const res = await authApi.get("/statistics/store/revenue/by-category");
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -50,8 +47,7 @@ export const getOrderStatusRate = async () => {
     const res = await authApi.get("/statistics/store/order/status-rate");
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -60,8 +56,7 @@ export const getOrderSummaryStats = async () => {
     const res = await authApi.get("/statistics/store/order/summary");
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -72,8 +67,7 @@ export const getOrdersOverTime = async (from, to) => {
     });
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -87,8 +81,7 @@ export const getOrderStatusDistribution = async (from, to) => {
     );
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -97,8 +90,7 @@ export const getOrdersByTimeSlot = async (limit) => {
     const res = await authApi.get("/statistics/store/order/by-time-slot");
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -110,8 +102,7 @@ export const getTopSellingItems = async (limit) => {
     });
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -125,8 +116,7 @@ export const getRevenueContributionByItem = async (limit) => {
     );
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -136,8 +126,7 @@ export const getNewCustomers = async () => {
     const res = await authApi.get("/statistics/store/customers/new");
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -146,8 +135,7 @@ export const getReturningCustomerRate = async () => {
     const res = await authApi.get("/statistics/store/customers/returning-rate");
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -158,8 +146,7 @@ export const getAverageSpendingPerOrder = async () => {
     );
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -170,8 +157,7 @@ export const getVoucherUsageSummary = async (from, to) => {
     });
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -182,8 +168,7 @@ export const getTopUsedVouchers = async (limit, from, to) => {
     });
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -194,7 +179,7 @@ export const getVoucherRevenueImpact = async (from, to) => {
     });
     return res.data;
   } catch (error) {
-    console.error(error);
-    throw error.response;f
+    throw error.response.data || error.response;
+    f;
   }
 };

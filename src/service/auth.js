@@ -7,10 +7,9 @@ export const login = async (data) => {
         "Content-Type": "application/json",
       },
     });
-    console.log("LOGIN DATA: ", response.data);
     return response.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -22,7 +21,7 @@ export const getOwneStore = async () => {
     return data;
   } catch (error) {
     console.error("Get owner store error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
+    throw err.response.data || err.response;
   }
 };
 
@@ -40,7 +39,7 @@ export const checkStoreOwnerEmail = async (email) => {
     return data;
   } catch (error) {
     console.error("Email check error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
+    throw err.response.data || err.response;
   }
 };
 
@@ -53,7 +52,7 @@ export const refreshAccessToken = async () => {
     return data;
   } catch (error) {
     console.error("Token refresh error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
+    throw err.response.data || err.response;
   }
 };
 
@@ -65,7 +64,7 @@ export const resetPassword = async (resetData) => {
     return data;
   } catch (error) {
     console.error("Reset password error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
+    throw err.response.data || err.response;
   }
 };
 
@@ -77,7 +76,7 @@ export const getOwnerStore = async () => {
     return data;
   } catch (error) {
     console.error("Get owner store error:", error);
-    return error.response?.data || { message: "Unknown error occurred" };
+    throw err.response.data || err.response;
   }
 };
 
@@ -87,7 +86,7 @@ export const changePassword = async (data) => {
     const res = await authApi.put(`/auth/staff/profile/password`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -96,7 +95,7 @@ export const forgotPassword = async (data) => {
     const res = await publicApi.post(`/auth/staff/forgot-password`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -105,7 +104,7 @@ export const checkOTP = async (data) => {
     const res = await publicApi.post(`/auth/staff/verify-otp`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -114,6 +113,6 @@ export const resetPasswordWithEmail = async (data) => {
     const res = await publicApi.put(`/auth/staff/reset-password`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };

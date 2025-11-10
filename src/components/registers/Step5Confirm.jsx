@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/data/errorMessages";
 const Step5Confirm = ({
   data,
   setData,
@@ -51,13 +52,7 @@ const Step5Confirm = ({
         return;
       }
     } catch (error) {
-      if (error.data.errorCode && error.data.errorCode === "EMAIL_EXISTS") {
-        toast.error("Email đã tồn tại");
-      } else if (error.data.errorCode) {
-        toast.error("Lỗi tạo cửa hàng: ", error.data.errorCode);
-      } else {
-        toast.error("Lỗi tạo cửa hàng: ", error);
-      }
+      toast.error("Lỗi đăng ký cửa hàng: ", getErrorMessage(error.errorCode));
     } finally {
       setLoading(false);
     }

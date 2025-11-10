@@ -1,5 +1,6 @@
 import axios from "axios";
 import publicApi from "./publicApi";
+import localStorageService from "../../utils/localStorageService";
 const BASE_URL = process.env.NEXT_PUBLIC_SERVER_URI;
 
 const authApi = axios.create({
@@ -38,6 +39,7 @@ authApi.interceptors.response.use(
         originalRequest.headers[
           "Authorization"
         ] = `Bearer ${newAccessToken.data.data.token}`;
+        localStorageService.setToken(newAccessToken.data.data.token);
         return axios(originalRequest);
       } catch (err) {
         localStorage.removeItem("token");

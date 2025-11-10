@@ -19,7 +19,7 @@ import { uploadImages } from "@/service/upload";
 import StorePaperwork from "@/components/store/StorePaperwork";
 import StoreAddress from "@/components/store/StoreAddress";
 import localStorageService from "@/utils/localStorageService";
-
+import { getErrorMessage } from "@/data/errorMessages";
 const page = () => {
   const [storeInfo, setStoreInfo] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -28,9 +28,9 @@ const page = () => {
   const fetchStore = async () => {
     const res = await getInformation(storeId);
     if (res.success) {
-      setStoreInfo(res.data); // set toàn bộ object vào luôn
+      setStoreInfo(res.data);
     } else {
-      console.error("Lỗi khi lấy thông tin cửa hàng:", res.message);
+      toast.error("Lỗi khi lấy thông tin cửa hàng");
     }
   };
 
@@ -44,7 +44,9 @@ const page = () => {
         const response = await getAllSystemCategories();
         setCategories(response.data);
       } catch (error) {
-        console.error("Không thể tải danh mục cửa hàng:", error);
+        toast.error(
+          getErrorMessage(error.errorCode) || "Không thể tải danh mục cửa hàng"
+        );
       }
     };
 
@@ -65,7 +67,10 @@ const page = () => {
         toast.error("Lỗi khi chuyển trạng thái");
       }
     } catch (error) {
-      toast.error("Không thể thay đổi trạng thái mở cửa:", error.message);
+      toast.error(
+        getErrorMessage(error.errorCode) ||
+          "Không thể thay đổi trạng thái mở cửa"
+      );
     }
   };
 
@@ -81,7 +86,7 @@ const page = () => {
         toast.error("Lỗi khi cập nhật giờ hoạt động");
       }
     } catch (error) {
-      toast.error("Không thể cập nhật giờ:", error.message);
+      toast.error(getErrorMessage(error.errorCode) || "Không thể cập nhật giờ");
     }
   };
 
@@ -95,7 +100,7 @@ const page = () => {
         toast.error("Cập nhật thất bại");
       }
     } catch (err) {
-      toast.error("Lỗi khi cập nhật:", err.message);
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi cập nhật");
     }
   };
 
@@ -144,8 +149,7 @@ const page = () => {
         toast.error("Cập nhật thất bại");
       }
     } catch (err) {
-      console.error("Lỗi khi cập nhật:", err);
-      toast.error("Lỗi khi cập nhật: " + err.message);
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi cập nhật");
     }
   };
 
@@ -217,14 +221,13 @@ const page = () => {
         toast.error("Cập nhật thất bại");
       }
     } catch (err) {
-      console.error("Lỗi khi cập nhật:", err);
-      toast.error("Lỗi khi cập nhật: " + err.message);
+      toast.error(getErrorMessage(err.errorCode) || "Lỗi khi cập nhật");
     }
   };
 
   const handleUpdateAddress = async (data) => {
     try {
-      const res = await updateAddress(storeId ,data);
+      const res = await updateAddress(storeId, data);
       console.log(res);
       if (res && res.success === true) {
         // Gọi lại API để lấy dữ liệu mới
@@ -234,7 +237,9 @@ const page = () => {
         toast.error("Lỗi khi cập nhật địa chỉ");
       }
     } catch (error) {
-      toast.error("Không thể cập nhật địa chỉ:", error.message);
+      toast.error(
+        getErrorMessage(error.errorCode) || "Không thể cập nhật địa chỉ"
+      );
     }
   };
 

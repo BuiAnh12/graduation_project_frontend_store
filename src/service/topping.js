@@ -7,7 +7,7 @@ export const getAllToppingsGroupByStore = async (storeId) => {
     const res = await publicApi.get(`/topping-group/store/${storeId}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -16,7 +16,7 @@ export const createToppingGroup = async (data) => {
     const res = await authApi.post("/topping-group", data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -25,7 +25,7 @@ export const updateToppingGroup = async (id, data) => {
     const res = await authApi.put(`/topping-group/${id}`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -35,7 +35,7 @@ export const getToppings = async (id) => {
     const res = await publicApi.get(`/topping/group/${id}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -44,7 +44,7 @@ export const addToppingToGroup = async (data) => {
     const res = await authApi.post(`/topping`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -53,7 +53,7 @@ export const removeToppingFromGroup = async (id) => {
     const res = await authApi.delete(`/topping/${id}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -62,7 +62,7 @@ export const removeToppingGroup = async (id) => {
     const res = await authApi.delete(`/topping-group/${id}`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -71,6 +71,6 @@ export const updateTopping = async (id, data) => {
     const res = await authApi.put(`/topping/${id}`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };

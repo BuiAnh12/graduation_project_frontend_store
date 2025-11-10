@@ -13,7 +13,7 @@ export const getStoreRatings = async ({
     const res = await authApi.get("/rating", { params });
     return res.data;
   } catch (error) {
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };
 
@@ -24,6 +24,6 @@ export const replyToRating = async (ratingId, storeReply) => {
     });
     return res.data;
   } catch (error) {
-    throw error.response;
+    throw error.response.data || error.response;
   }
 };

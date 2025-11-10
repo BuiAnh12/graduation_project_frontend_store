@@ -13,7 +13,7 @@ import ToppingsModal from "./ToppingsModal";
 import OrderItemRow from "./OrderItemRow";
 import { computeTotals, formatVND } from "@/utils/pricing";
 import useUndoableRemove from "@/hooks/useUndoableRemove";
-
+import { getErrorMessage } from "@/data/errorMessages";
 const normalizeItems = (items) =>
   (items || []).map((it) => ({
     dishId: it.dishId,
@@ -85,7 +85,6 @@ export default function OrderEditor() {
           [];
         setDishes(list);
       } catch (e) {
-        console.error(e);
         toast.error("Lỗi khi tải dữ liệu.");
       } finally {
         setLoading(false);
@@ -157,8 +156,9 @@ export default function OrderEditor() {
       setConfirmSaveOpen(false);
       router.push(`/orders/${order._id}`);
     } catch (e) {
-      console.error(e);
-      toast.error("Cập nhật thất bại. Vui lòng thử lại.");
+      toast.error(
+        getErrorMessage(e.errorCode) || "Cập nhật thất bại. Vui lòng thử lại."
+      );
     } finally {
       setSaving(false);
     }

@@ -5,7 +5,7 @@ export const getProfile = async () => {
     const res = await authApi.get(`/auth/staff/profile`);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -14,7 +14,7 @@ export const updateProfileInfo = async (data) => {
     const res = await authApi.put(`/auth/staff/profile/info`, data);
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
 
@@ -26,6 +26,6 @@ export const checkCurrentPassword = async (data) => {
     );
     return res.data;
   } catch (err) {
-    throw err.response;
+    throw err.response.data || err.response;
   }
 };
