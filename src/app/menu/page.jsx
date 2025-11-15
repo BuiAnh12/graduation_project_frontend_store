@@ -12,7 +12,6 @@ const page = () => {
   ];
   return (
     <>
-
       <Header title="Thực đơn" goBack={true} />
       <div className='pt-[70px] pb-[10px] bg-gray-100'>
         <Tabs

@@ -31,6 +31,7 @@ const DishTab = () => {
       try {
         setIsLoading(true);
         const dishData = await getDishes(storeId);
+        console.log("DISH DATA: ", dishData);
         const newData = transformToMenuFormat(dishData.data);
         console.log("Menu: ", newData);
         setMenu(newData);
@@ -87,6 +88,7 @@ const DishTab = () => {
           displayOrder: index + 1,
         }));
 
+        console.log("section: ", section);
         return { ...section, items: updatedItems };
       })
     );

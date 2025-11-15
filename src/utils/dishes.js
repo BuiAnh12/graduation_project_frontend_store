@@ -4,7 +4,7 @@ export const transformToMenuFormat = (apiData) => {
   const categoryMap = new Map();
 
   apiData.forEach((item) => {
-    const categoryName = item.category?.name || "Uncategorized";
+    const categoryName = item.categories?.name || "Uncategorized";
 
     if (!categoryMap.has(categoryName)) {
       categoryMap.set(categoryName, []);
