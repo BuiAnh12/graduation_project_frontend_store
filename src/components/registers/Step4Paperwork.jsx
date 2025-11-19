@@ -43,7 +43,7 @@ const Step4Paperwork = ({ files, setFiles, nextStep, prevStep }) => {
             <button
               type="button"
               onClick={() => ICFrontInputRef.current?.click()}
-              className="px-3 py-2 bg-blue-600 rounded-lg hover:bg-gray-300 transition h-[40px] w-[100px]"
+              className="px-3 py-2 bg-blue-600 text-white font-bold text-sm mt-2 rounded-lg hover:bg-blue-500 cursor-pointer transition h-[40px] w-[100px]"
             >
               Chọn ảnh
             </button>
@@ -72,7 +72,7 @@ const Step4Paperwork = ({ files, setFiles, nextStep, prevStep }) => {
             <button
               type="button"
               onClick={() => ICBackInputRef.current?.click()}
-              className="px-3 py-2 bg-blue-600 rounded-lg hover:bg-gray-300 transition h-[40px] w-[100px]"
+              className="px-3 py-2 bg-blue-600 text-white font-bold text-sm mt-2 rounded-lg hover:bg-blue-500 cursor-pointer transition h-[40px] w-[100px]"
             >
               Chọn ảnh
             </button>
@@ -103,7 +103,7 @@ const Step4Paperwork = ({ files, setFiles, nextStep, prevStep }) => {
             <button
               type="button"
               onClick={() => businessLicenseInputRef.current?.click()}
-              className="px-3 py-2 bg-blue-600 rounded-lg hover:bg-gray-300 transition h-[40px] w-[100px]"
+              className="px-3 py-2 bg-blue-600 text-white font-bold text-sm mt-2 rounded-lg hover:bg-blue-500 cursor-pointer transition h-[40px] w-[100px]"
             >
               Chọn ảnh
             </button>

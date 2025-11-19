@@ -13,7 +13,7 @@ const page = () => {
   return (
     <>
       <Header title="Thực đơn" goBack={true} />
-      <div className='pt-[70px] pb-[10px] bg-gray-100'>
+      <div className='pt-[70px] pb-[10px] bg-white'>
         <Tabs
           tabs={tabData}
           defaultActiveTab={0}

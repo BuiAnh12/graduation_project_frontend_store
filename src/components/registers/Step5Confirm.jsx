@@ -59,7 +59,7 @@ const Step5Confirm = ({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+    <div className="w-full mx-auto bg-white p-8 rounded-xl shadow-lg">
       <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
         Thông tin cửa hàng
       </h2>
@@ -210,13 +210,13 @@ const Step5Confirm = ({
       <div className="flex justify-between mt-8">
         <button
           onClick={prevStep}
-          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
+          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition cursor-pointer"
         >
           Quay lại
         </button>
         <button
           onClick={handleRegister}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition cursor-pointer"
         >
           Gửi đăng ký
         </button>

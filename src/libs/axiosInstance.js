@@ -3,8 +3,7 @@ import localStorageService from "@/utils/localStorageService";
 
 // Create base Axios instance
 const axiosInstance = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1",
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URI,
   withCredentials: true, // Needed for sending refresh token cookie
 });
 
@@ -62,10 +61,9 @@ axiosInstance.interceptors.response.use(
 
       try {
         // Refresh the token via API call
-        const res = await axios.get(
-          "http://localhost:5000/api/v1/auth/refresh",
-          { withCredentials: true }
-        );
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}`, {
+          withCredentials: true,
+        });
         const newToken = res.data?.accessToken;
 
         if (newToken) {

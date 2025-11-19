@@ -95,16 +95,18 @@ const RegisterPage = () => {
   }, [formData, files]);
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-yellow-300 via-yellow-200 to-yellow-200 px-4 py-8">
+    <div className="w-full min-h-screen bg-white-50 px-4 pt-4">
       <h1 className="text-3xl font-bold text-center mb-8 text-gray-700">
         Đăng ký cửa hàng
       </h1>
 
       {/* Step Progress */}
-      <StepRegister currentStep={currentStep} />
+      <div className="lg:block hidden">
+        <StepRegister currentStep={currentStep} />
+      </div>
 
       {/* Form Step */}
-      <div className="mt-8 bg-white rounded-2xl shadow-md p-6">
+      <div className="mt-8 bg-gradient-to-br from-yellow-300 via-yellow-200 to-yellow-200 rounded-2xl shadow-md p-6">
         {steps[currentStep]}
       </div>
     </div>

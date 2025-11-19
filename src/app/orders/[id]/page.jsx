@@ -49,6 +49,7 @@ const OrderDetailsPage = () => {
         return <ConfirmedOrder order={order} />;
       case "delivered":
       case "cancelled":
+      case "done":
         return <HistoryOrder order={order} />;
       default:
         return <p>Không xác định trạng thái đơn hàng</p>;

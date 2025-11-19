@@ -41,12 +41,31 @@ const HistoryOrder = ({ order }) => {
         {/* Order Items */}
         <div className="bg-white p-4 rounded-lg shadow-md mb-4">
           <ul className="mb-4 text-sm text-gray-700">
-            {order?.items?.map((item, index) => (
-              <li key={index} className="flex justify-between py-2">
-                <span>
-                  {item?.quantity} x {item?.dishName}
-                </span>
-                <span>{item?.price?.toLocaleString() || 0}₫</span>
+            {order?.items?.map((item) => (
+              <li key={item._id} className="py-2">
+                <div className="flex justify-between w-full">
+                  <span>
+                    {item.quantity} x {item.dishName}
+                  </span>
+                  <span>{item.price.toLocaleString()}₫</span>
+                </div>
+
+                {/* Hiện topping */}
+                <div className="ml-4 text-xs text-gray-500 mt-2">
+                  {item.toppings?.map((tp) => (
+                    <div key={tp._id} className="flex justify-between py-0.5">
+                      <span>• {tp.toppingName}</span>
+                      <span>{tp.price.toLocaleString()}₫</span>
+                    </div>
+                  ))}
+
+                  {item.note && (
+                    <div className="text-xs text-gray-600 italic py-0.5 flex gap-2">
+                      <p className="underline">Ghi chú:</p>
+                      {item.note}
+                    </div>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

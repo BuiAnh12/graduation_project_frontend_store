@@ -23,40 +23,40 @@ const OrderCard = ({ order, orderIndex, refetch }) => {
     }
   };
 
-const handleCancelOrder = async () => {
-  if (!order) return;
+  const handleCancelOrder = async () => {
+    if (!order) return;
 
-  const result = await Swal.fire({
-    title: "Bạn có chắc muốn hủy đơn hàng này không?",
-    text: "Hành động này không thể hoàn tác!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Có, hủy đơn!",
-    cancelButtonText: "Không",
-  });
+    const result = await Swal.fire({
+      title: "Bạn có chắc muốn hủy đơn hàng này không?",
+      text: "Hành động này không thể hoàn tác!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Có, hủy đơn!",
+      cancelButtonText: "Không",
+    });
 
-  if (result.isConfirmed) {
-    try {
-      const res = await cancelOrder(order._id);
-      await Swal.fire({
-        icon: "success",
-        title: "Đã hủy đơn hàng thành công!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-      refetch(); // load lại danh sách
-    } catch (error) {
-      console.error("Failed to cancel order:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Hủy đơn thất bại",
-        text: "Đã xảy ra lỗi trong quá trình xử lý.",
-      });
+    if (result.isConfirmed) {
+      try {
+        const res = await cancelOrder(order._id);
+        await Swal.fire({
+          icon: "success",
+          title: "Đã hủy đơn hàng thành công!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        refetch(); // load lại danh sách
+      } catch (error) {
+        console.error("Failed to cancel order:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Hủy đơn thất bại",
+          text: "Đã xảy ra lỗi trong quá trình xử lý.",
+        });
+      }
     }
-  }
-};
+  };
 
   const router = useRouter();
 
@@ -127,13 +127,13 @@ const handleCancelOrder = async () => {
         <p className="font-thin text-sm text-gray-400 flex-shrink-0"></p>
         <div className="flex space-x-4">
           <button
-            className="py-1 px-2 bg-gray-200 text-sm text-gray-700 rounded-md hover:bg-gray-300"
+            className="py-1 px-2 bg-gray-200 text-sm text-gray-700 rounded-md hover:bg-gray-300 cursor-pointer"
             onClick={() => router.push(`orders/${order._id}`)}
           >
             Xem thêm
           </button>
           <button
-            className="py-1 px-2 bg-[#fc6011] text-sm text-white rounded-md hover:bg-[#e9550f]"
+            className="py-1 px-2 bg-[#fc6011] text-sm text-white rounded-md hover:bg-[#e9550f] cursor-pointer"
             onClick={handleUpdateOrder}
           >
             Xác nhận

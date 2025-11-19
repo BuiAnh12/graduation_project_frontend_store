@@ -11,12 +11,7 @@ function debounce(fn, delay) {
   };
 }
 
-const Step3StoreAddress = ({
-  data,
-  setData,
-  nextStep,
-  prevStep,
-}) => {
+const Step3StoreAddress = ({ data, setData, nextStep, prevStep }) => {
   const [locationReady, setLocationReady] = useState(false);
   const [addressInput, setAddressInput] = useState(data.address_full || "");
 
@@ -77,7 +72,7 @@ const Step3StoreAddress = ({
   const handleLocationSelect = (lat, lon) => {
     setData({
       ...data,
-      location: { type: "Point", coordinates: [lon, lat] },
+      location: { type: "Point", coordinates: [lat, lon] },
     });
   };
 
@@ -87,7 +82,7 @@ const Step3StoreAddress = ({
     data?.location?.coordinates?.[1];
 
   return (
-    <div className="text-black">
+    <div className="text-black bg-white p-4 m-4 rounded-lg">
       <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
         Địa chỉ cửa hàng
       </h2>
@@ -124,7 +119,7 @@ const Step3StoreAddress = ({
           <button
             type="button"
             onClick={prevStep}
-            className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+            className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition cursor-pointer"
           >
             Quay lại
           </button>
@@ -134,7 +129,7 @@ const Step3StoreAddress = ({
               if (validateStep()) nextStep();
               else toast.error("Vui lòng điền đầy đủ thông tin!");
             }}
-            className="px-5 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition"
+            className="px-5 py-2 rounded-lg bg-yellow-500 text-white hover:bg-yellow-400 font-semibold transition cursor-pointer"
           >
             Tiếp theo
           </button>

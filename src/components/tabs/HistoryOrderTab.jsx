@@ -62,7 +62,7 @@ const OrderCard = ({ order, orderIndex }) => {
 
   return (
     <div
-      className="border rounded-lg shadow-md p-4 bg-white mb-4"
+      className="border rounded-lg shadow-md p-4 bg-white mb-4 cursor-pointer"
       onClick={() => router.push(`orders/${order._id}`)}
       data-testid="verify-order-row"
       data-order-id={order._id}

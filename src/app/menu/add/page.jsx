@@ -82,6 +82,7 @@ const CreateDish = () => {
     fetchTags();
   }, []);
   const handleTagToggle = (type, tagId) => {
+    console.log("Ảnh toogle");
     setSelectedTags((prev) => {
       const updated = new Set(prev[type]);
       if (updated.has(tagId)) {
@@ -175,8 +176,9 @@ const CreateDish = () => {
       toast.info("Đang phân tích ảnh...");
 
       const res = await predictTags(imageFile);
-      const postProcess = res?.post_preocess || [];
-
+      console.log("RES:", res);
+      const postProcess = res?.data.post_process || [];
+      console.log("postProcess", postProcess);
       // Tạo map các set mới cho từng loại tag
       const newSelected = {
         cookingMethod: new Set(selectedTags.cookingMethod),
@@ -184,6 +186,8 @@ const CreateDish = () => {
         food: new Set(selectedTags.food),
         taste: new Set(selectedTags.taste),
       };
+
+      console.log("new selected", newSelected);
 
       postProcess.forEach((group) => {
         group.tags.forEach((tag) => {

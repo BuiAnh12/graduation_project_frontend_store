@@ -32,7 +32,7 @@ authApi.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const newAccessToken = await axios.get(
-          "http://localhost:5000/api/v1/auth/refresh/staff",
+          `${process.env.NEXT_PUBLIC_SERVER_URI}/auth/refresh/staff`,
           { withCredentials: true }
         );
         // localStorage.setItem("token", newAccessToken.accessToken);

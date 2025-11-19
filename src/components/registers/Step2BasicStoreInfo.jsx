@@ -83,7 +83,6 @@ const Step2BasicStoreInfo = ({
       toast.error("Vui lòng nhập đầy đủ thông tin.");
       return;
     } else {
-      toast.success("Thành cônng");
       nextStep();
       return;
     }
@@ -186,7 +185,7 @@ const Step2BasicStoreInfo = ({
             <button
               type="button"
               onClick={() => avatarInputRef.current?.click()}
-              className="px-3 py-2 bg-blue-600 rounded-lg hover:bg-gray-300 transition h-[40px] w-[100px]"
+              className="px-3 py-2 bg-blue-600 text-white font-bold text-sm mt-2 rounded-lg hover:bg-blue-500 cursor-pointer transition h-[40px] w-[100px]"
             >
               Chọn ảnh
             </button>
@@ -217,7 +216,7 @@ const Step2BasicStoreInfo = ({
             <button
               type="button"
               onClick={() => coverInputRef.current?.click()}
-              className="px-3 py-2 bg-blue-600 rounded-lg hover:bg-gray-300 transition h-[40px] w-[100px]"
+              className="px-3 py-2 bg-blue-600 text-white font-bold text-sm mt-2 rounded-lg hover:bg-blue-500 cursor-pointer transition h-[40px] w-[100px]"
             >
               Chọn ảnh
             </button>

@@ -3,7 +3,10 @@ import authApi from "./instances/authApi";
 export const getDishes = async (storeId, query = {}) => {
   try {
     const res = await authApi.get(`/dish/store/${storeId}`, {
-      params: query,
+      params: {
+        page: 1,
+        limit: 100,
+      },
     });
     return res.data;
   } catch (err) {
