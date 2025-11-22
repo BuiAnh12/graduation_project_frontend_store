@@ -8,19 +8,3 @@ export const getAllTags = async () => {
     throw err.response.data || err.response;
   }
 };
-
-export const predictTags = async (file) => {
-  try {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const res = await publicApi.post(`/recommend/tag/predict`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return res.data;
-  } catch (error) {
-    throw err.response.data || err.response;
-  }
-};

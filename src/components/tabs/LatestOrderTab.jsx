@@ -12,14 +12,43 @@ const OrderCard = ({ order, orderIndex, refetch }) => {
 
   const handleUpdateOrder = async () => {
     if (!order) return;
+
+    const result = await Swal.fire({
+      title: "Xác nhận cập nhật đơn hàng?",
+      text: "Bạn có chắc muốn chuyển đơn sang trạng thái 'đang chuẩn bị' không?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    });
+
+    if (!result.isConfirmed) return; // ❌ User bấm Hủy → dừng lại
+
     try {
-      console.log(order._id);
       const updatedOrder = { ...order, status: "preparing" };
       const orderId = order._id;
+
       await updateOrder({ orderId, updatedData: updatedOrder });
+
+      Swal.fire({
+        icon: "success",
+        title: "Cập nhật thành công!",
+        text: "Đơn hàng đã chuyển sang trạng thái 'đang chuẩn bị'",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
       refetch();
     } catch (error) {
       console.error("Failed to update order:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi!",
+        text: "Không thể cập nhật đơn hàng",
+      });
     }
   };
 

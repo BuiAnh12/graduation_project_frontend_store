@@ -24,12 +24,7 @@ const ConfirmedOrder = ({ order }) => {
     <>
       <div className="w-full px-4 py-2 mt-20">
         <div className="w-full p-4 bg-gray-50">
-          <div className="p-2 bg-yellow-100 text-yellow-800 text-sm rounded-md mb-4">
-            Khách ghi chú:{" "}
-            <span className="font-semibold">Không có ghi chú</span>
-          </div>
-
-          {/* Customer Info */}
+          {/* Customer Info */}   
           <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md mb-4">
             <div className="flex items-center">
               {/* <img

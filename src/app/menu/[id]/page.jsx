@@ -13,10 +13,16 @@ import {
 } from "@/service/dish";
 import { getAllToppingsGroupByStore } from "@/service/topping";
 import { getAllCategories } from "@/service/category";
-import { getAllTags, predictTags } from "@/service/tags";
+import { getAllTags } from "@/service/tags";
+import {
+  generateNewDesciption,
+  predictTagsFromImage,
+  predictTagsFromText,
+} from "@/service/recommend";
 import { uploadImage } from "@/service/upload";
 import localStorageService from "@/utils/localStorageService";
 import { getErrorMessage } from "@/data/errorMessages";
+import TagSection from "@/components/fragments/TagSection";
 const DishForm = () => {
   const router = useRouter();
   const { id } = useParams(); // ✅ id trong route
@@ -29,7 +35,7 @@ const DishForm = () => {
   const [cultureTags, setCultureTags] = useState([]);
   const [foodTags, setFoodTags] = useState([]);
   const [tasteTags, setTasteTags] = useState([]);
-
+  const [newDescription, setNewDescription] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [image, setImage] = useState(null);
@@ -47,7 +53,6 @@ const DishForm = () => {
     food: new Set(),
     taste: new Set(),
   });
-  const [showModal, setShowModal] = useState(false);
 
   // ---------- FETCH DATA ----------
   const fetchCategories = async () => {
@@ -174,26 +179,55 @@ const DishForm = () => {
     });
   };
 
-  const handleSave = () => {
-    setShowModal(true);
-  };
-
   const confirmSave = async () => {
-    setShowModal(false);
-    let uploadedImage = image;
+    // Validate các trường bắt buộc
+    if (!formData.name?.trim()) {
+      toast.error("Vui lòng nhập tên món ăn");
+      return;
+    }
+    if (!formData.stockCount) {
+      toast.error("Vui lòng nhập số lượng");
+      return;
+    }
+    if (!formData.price || isNaN(Number(formData.price))) {
+      toast.error("Vui lòng nhập giá");
+      return;
+    }
+    if (!formData.description?.trim()) {
+      toast.error("Vui lòng nhập mô tả");
+      return;
+    }
+    if (!formData.category) {
+      toast.error("Vui lòng chọn danh mục");
+      return;
+    }
 
-    // Nếu có upload ảnh mới thì upload
+    // Xác nhận trước khi lưu
+    const result = await Swal.fire({
+      title: "Xác nhận",
+      text: id
+        ? "Bạn có chắc muốn cập nhật món ăn này không?"
+        : "Bạn có chắc muốn tạo món ăn này không?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Có",
+      cancelButtonText: "Hủy",
+    });
+
+    if (!result.isConfirmed) return;
+
+    let uploadedImage = image; // giữ image hiện tại nếu không upload mới
+
     if (imageFile) {
       try {
         const res = await uploadImage(imageFile);
         uploadedImage = res?.id;
       } catch (err) {
-        toast.error("Không thể tải ảnh lên");
+        Swal.fire("Lỗi", "Không thể tải ảnh lên", "error");
         return;
       }
     }
 
-    // Chuẩn hóa dữ liệu gửi lên backend
     const payload = {
       name: formData.name.trim(),
       price: Number(formData.price),
@@ -206,21 +240,24 @@ const DishForm = () => {
       cultureTags: Array.from(selectedTags.culture),
       toppingGroupIds: Array.from(selectedToppings),
       stockStatus: "available",
-      stockCount: formData.stockCount,
+      stockCount: formData.stockCount ?? -1,
     };
 
     try {
       if (id) {
-        // ✅ Sửa lại truyền storeId + dishId cho đúng với backend
-        await updateDish(storeId, id, payload);
-        toast.success("Cập nhật món ăn thành công!");
+        await updateDish(storeId, id, payload); // update
+        Swal.fire("Thành công", "Cập nhật món ăn thành công!", "success");
       } else {
-        await createDish(storeId, payload);
-        toast.success("Tạo món ăn thành công!");
+        await createDish(storeId, payload); // create
+        Swal.fire("Thành công", "Tạo món ăn thành công!", "success");
       }
       router.back();
     } catch (err) {
-      toast.error(getErrorMessage(err.errorCode) || "Không thể lưu món ăn");
+      Swal.fire(
+        "Lỗi",
+        getErrorMessage(err.errorCode) || "Không thể lưu món ăn",
+        "error"
+      );
     }
   };
 
@@ -266,17 +303,39 @@ const DishForm = () => {
     }
   };
 
+  const USE_IMAGE = false;
+  const USE_TEXT = true;
   const handleAutoTag = async () => {
-    if (!imageFile) {
+    if (!imageFile && USE_IMAGE) {
       toast.warning("Vui lòng chọn ảnh trước khi gợi ý thẻ!");
       return;
     }
 
     try {
-      toast.info("Đang phân tích ảnh...");
-      const res = await predictTags(imageFile);
-      const postProcess = res?.post_preocess || [];
+      toast.info("Đang phân tích dữ liệu...");
+      const [imgRes, textRes] = await Promise.all([
+        USE_IMAGE ? predictTagsFromImage(imageFile).catch(() => null) : null,
+        USE_TEXT
+          ? predictTagsFromText({
+              name: formData.name,
+              description: formData.description,
+            }).catch(() => null)
+          : null,
+      ]);
 
+      console.log("IMAGE_RES:", imgRes);
+      console.log("TEXT_RES:", textRes);
+
+      const textProcessed = textRes ? textRes.data.enriched_result || [] : [];
+
+      const imageProcessed = imgRes ? imgRes.data.post_process || [] : [];
+
+      // Gom tag lại
+      const combined = [...imageProcessed, ...textProcessed];
+
+      console.log("COMBINED:", combined);
+
+      // Copy struct set
       const newSelected = {
         cookingMethod: new Set(selectedTags.cookingMethod),
         culture: new Set(selectedTags.culture),
@@ -284,7 +343,8 @@ const DishForm = () => {
         taste: new Set(selectedTags.taste),
       };
 
-      postProcess.forEach((group) => {
+      // Nhận dạng tất cả tag + add vào state
+      combined.forEach((group) => {
         group.tags.forEach((tag) => {
           switch (tag.type) {
             case "food":
@@ -308,6 +368,40 @@ const DishForm = () => {
     } catch (err) {
       toast.error("Không thể gợi ý thẻ tự động");
     }
+  };
+
+  const handleSuggestDescription = async () => {
+    try {
+      toast.info("Đang tạo mô tả mới...");
+      const payload = {
+        name: formData.name,
+        description: formData.description,
+      };
+
+      const res = await generateNewDesciption(payload);
+
+      setNewDescription(res.data.new_description);
+      toast.success("Tạo mô tả thành công!");
+    } catch (err) {
+      console.log(err);
+      toast.error(
+        getErrorMessage(err.errorCode) || "Không thể gợi ý thẻ tự động"
+      );
+    }
+  };
+  const isAnyTagSelected =
+    selectedTags.cookingMethod.size > 0 ||
+    selectedTags.culture.size > 0 ||
+    selectedTags.food.size > 0 ||
+    selectedTags.taste.size > 0;
+
+  const clearAllTags = () => {
+    setSelectedTags({
+      cookingMethod: new Set(),
+      culture: new Set(),
+      food: new Set(),
+      taste: new Set(),
+    });
   };
 
   // ---------- UI ----------
@@ -364,11 +458,6 @@ const DishForm = () => {
             {[
               { label: "Tên*", name: "name", type: "text" },
               { label: "Giá*", name: "price", type: "number" },
-              {
-                label: "Mô tả",
-                name: "description",
-                type: "text",
-              },
             ].map((field, index) => (
               <div key={index} className="border-b pb-2">
                 <label className="block text-sm font-semibold text-gray-700">
@@ -383,6 +472,67 @@ const DishForm = () => {
                 />
               </div>
             ))}
+            <div className="border-b pb-2">
+              <div className="flex justify-between items-center mb-4">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Mô tả
+                </label>
+                <button
+                  onClick={handleSuggestDescription}
+                  className="mt-2 bg-[#fc6011] text-white px-3 py-2 rounded-md text-xs"
+                >
+                  Gợi ý mô tả mới
+                </button>
+              </div>
+
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={4}
+                className="w-full p-2 ring-1 ring-gray-300 my-2 rounded-md outline-none focus:ring-[#fc6011]"
+              />
+            </div>
+            {newDescription && (
+              <div className="bg-white shadow-md p-4 rounded-lg border border-gray-300 mt-3 space-y-3">
+                <p className="font-semibold text-gray-700">Mô tả gợi ý</p>
+
+                <div className="grid grid-cols-1 gap-3">
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Mô tả hiện tại</p>
+                    <div className="p-2 border rounded bg-gray-50 text-sm">
+                      {formData.description}
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Mô tả mới</p>
+                    <div className="p-2 border rounded bg-orange-50 text-sm">
+                      {newDescription}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-2">
+                  <button
+                    onClick={() => setNewDescription(null)}
+                    className="flex-1 py-2 rounded-md border text-gray-700 text-sm"
+                  >
+                    Giữ mô tả cũ
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setFormData({ ...formData, description: newDescription });
+                      setNewDescription(null);
+                    }}
+                    className="flex-1 py-2 bg-[#fc6011] text-white rounded-md text-sm"
+                  >
+                    Dùng mô tả mới
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="border-b pb-2">
               <label className="block text-sm font-semibold text-gray-700">
                 Danh mục*
@@ -432,140 +582,60 @@ const DishForm = () => {
             <p className="text-lg font-semibold">Tags</p>
             <button
               onClick={handleAutoTag}
-              disabled={!imageFile}
-              className={`text-xs px-3 py-2 rounded-md shadow-md transition ${
-                imageFile
-                  ? "bg-[#fc6011] text-white hover:bg-[#e7560f]"
-                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
-              }`}
+              className="text-xs px-3 py-2 rounded-md shadow-md transitionbg-[#fc6011] text-white bg-[#fc6011]  "
             >
               Gợi ý thẻ
             </button>
           </div>
-          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
-            <h3 className="text-lg font-semibold text-gray-800">
-              Phương pháp nấu
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {cookingMethodTags.map((tag) => (
-                <button
-                  key={tag._id}
-                  onClick={() => handleTagToggle("cookingMethod", tag._id)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
-          ${
-            selectedTags.cookingMethod.has(tag._id)
-              ? "bg-green-500 text-white border-green-500"
-              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-          }`}
-                >
-                  {tag.name}
-                </button>
-              ))}
-            </div>
-          </div>
 
-          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
-            <h3 className="text-lg font-semibold text-gray-800">Văn hóa</h3>
-            <div className="flex flex-wrap gap-2">
-              {cultureTags.map((tag) => (
-                <button
-                  key={tag._id}
-                  onClick={() => handleTagToggle("culture", tag._id)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
-          ${
-            selectedTags.culture.has(tag._id)
-              ? "bg-green-500 text-white border-green-500"
-              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-          }`}
-                >
-                  {tag.name}
-                </button>
-              ))}
-            </div>
+          <div className="flex flex-col gap-4 justify-start">
+            {isAnyTagSelected && (
+              <button
+                onClick={clearAllTags}
+                className="text-xs font-semibold px-4 py-2 bg-red-500 text-white rounded-lg w-[120px]"
+              >
+                Bỏ chọn tất cả
+              </button>
+            )}
+            <TagSection
+              title="Thành phần"
+              tags={foodTags}
+              selectedSet={selectedTags.food}
+              onToggle={(id) => handleTagToggle("food", id)}
+            />
+            <TagSection
+              title="Văn hoá"
+              tags={cultureTags}
+              selectedSet={selectedTags.culture}
+              onToggle={(id) => handleTagToggle("culture", id)}
+            />
+            <TagSection
+              title="Hương vị"
+              tags={tasteTags}
+              selectedSet={selectedTags.taste}
+              onToggle={(id) => handleTagToggle("taste", id)}
+            />
+            <TagSection
+              title="Cách chế biến"
+              tags={cookingMethodTags}
+              selectedSet={selectedTags.cookingMethod}
+              onToggle={(id) => handleTagToggle("cookingMethod", id)}
+            />
           </div>
-
-          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
-            <h3 className="text-lg font-semibold text-gray-800">Thành phần</h3>
-            <div className="flex flex-wrap gap-2">
-              {foodTags.map((tag) => (
-                <button
-                  key={tag._id}
-                  onClick={() => handleTagToggle("food", tag._id)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
-          ${
-            selectedTags.food.has(tag._id)
-              ? "bg-green-500 text-white border-green-500"
-              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-          }`}
-                >
-                  {tag.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-4 shadow-sm space-y-3">
-            <h3 className="text-lg font-semibold text-gray-800">Hương vị</h3>
-            <div className="flex flex-wrap gap-2">
-              {tasteTags.map((tag) => (
-                <button
-                  key={tag._id}
-                  onClick={() => handleTagToggle("taste", tag._id)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200
-          ${
-            selectedTags.taste.has(tag._id)
-              ? "bg-green-500 text-white border-green-500"
-              : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-          }`}
-                >
-                  {tag.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <div className="flex justify-between w-full items-center">
             <button
               onClick={handleDelete}
-              className="text-white  p-3 px-10 text-md font-semibold rounded-lg bg-red-500"
+              className="text-white py-2 px-6 text-md font-semibold rounded-lg bg-red-500"
             >
               Xóa
             </button>
             <button
-              onClick={handleSave}
-              className="text-white  p-3 px-10 text-md font-semibold rounded-lg bg-[#fc6011]"
+              onClick={confirmSave}
+              className="text-white py-2 px-6 text-md font-semibold rounded-lg bg-[#fc6011]"
             >
               Cập nhật
             </button>
           </div>
-
-          {showModal && (
-            <div
-              className="fixed inset-0 flex items-center justify-center bg-black/40 z-50"
-              onClick={() => setShowModal(false)}
-            >
-              <div
-                className="bg-white rounded-lg shadow-lg p-10"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <p>Bạn có chắc chắn muốn lưu?</p>
-                <div className="flex justify-end gap-3 mt-4">
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="bg-gray-400 text-white px-4 py-2 rounded"
-                  >
-                    Đóng
-                  </button>
-                  <button
-                    onClick={confirmSave}
-                    className="bg-green-500 text-white px-4 py-2 rounded"
-                  >
-                    Cập nhật
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </>
