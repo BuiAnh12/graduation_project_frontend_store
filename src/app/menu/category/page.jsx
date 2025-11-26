@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import LabelWithIcon from "@/components/LableWithIcon";
 import Modal from "@/components/Modal";
+import Image from "next/image";
 import { toast } from "react-toastify";
 import {
   getAllCategories,
@@ -176,10 +177,22 @@ const CategoryItem = ({ item, onEdit, onDelete }) => {
       <p className="font-semibold">{item.name}</p>
       <div className="flex space-x-2">
         <button onClick={onEdit} className="text-blue-500">
-          ✏️
+          <Image
+            src="/assets/write.png"
+            alt="User"
+            width={24}
+            height={24}
+            className="cursor-pointer"
+          />
         </button>
         <button onClick={onDelete} className="text-red-500">
-          🗑️
+          <Image
+            src="/assets/trash.png"
+            alt="User"
+            width={24}
+            height={24}
+            className="cursor-pointer"
+          />
         </button>
       </div>
     </div>
