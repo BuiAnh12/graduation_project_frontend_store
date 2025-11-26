@@ -7,6 +7,7 @@ This is the management application for the store site. It provides essential too
 ## Features
 
 - Authentication
+
 Secure login, role-based access control, and account protection.
 
 - Order Management
