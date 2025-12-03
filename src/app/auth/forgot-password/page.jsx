@@ -23,7 +23,7 @@ const Page = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-yellow-100 to-yellow-500">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-[#ff8743] to-[#f38d52]">
       <ToastContainer />
 
       <div className="bg-white/90 rounded-xl shadow-lg p-6 sm:p-8 w-11/12 sm:w-[400px] md:w-[480px] text-center">

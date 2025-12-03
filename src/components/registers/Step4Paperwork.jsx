@@ -29,8 +29,8 @@ const Step4Paperwork = ({ files, setFiles, nextStep, prevStep }) => {
   };
 
   return (
-    <div className="w-full rounded-2xl border m-2 border-gray-100 bg-white p-6 md:p-10 lg:p-16 shadow-lg">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+    <div className="w-full rounded-2xl border border-gray-100 bg-white p-4 md:p-6 lg:p-10 shadow-lg">
+      <h2 className="text-xl font-bold text-center text-gray-800 mb-4">
         Bổ sung giấy tờ
       </h2>
 
@@ -135,7 +135,7 @@ const Step4Paperwork = ({ files, setFiles, nextStep, prevStep }) => {
         </button>
         <button
           onClick={handleNext}
-          className="px-5 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-white font-semibold shadow-md transition transform hover:-translate-y-0.5 cursor-pointer"
+          className="px-5 py-2 rounded-lg bg-[#fc2111] hover:bg-[#f13325] text-white font-semibold shadow-md transition transform hover:-translate-y-0.5 cursor-pointer"
         >
           Tiếp tục
         </button>

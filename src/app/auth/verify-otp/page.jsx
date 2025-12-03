@@ -112,7 +112,7 @@ const Page = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gradient-to-b from-yellow-100 to-yellow-500">
+    <div className="flex items-center justify-center h-screen bg-gradient-to-b from-[#ff8743] to-[#f38d52]">
       <ToastContainer />
       <div className="bg-white bg-opacity-95 p-8 rounded-xl shadow-lg w-96 text-center">
         <h3 className="text-2xl font-bold mb-2">Xác thực OTP</h3>

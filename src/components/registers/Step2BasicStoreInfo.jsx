@@ -89,8 +89,8 @@ const Step2BasicStoreInfo = ({
   };
 
   return (
-    <div className="w-full max-w-none rounded-2xl border m-2 border-gray-100 bg-white p-8 md:px-12 lg:px-20 xl:px-32 shadow-xl">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+    <div className="w-full max-w-none rounded-2xl border border-gray-100 bg-white p-8 md:px-12 lg:px-20 xl:px-32 shadow-xl">
+      <h2 className="text-xl font-bold text-center text-gray-800 mb-8">
         Thông tin cửa hàng
       </h2>
 
@@ -248,7 +248,7 @@ const Step2BasicStoreInfo = ({
         </button>
         <button
           onClick={handleNext}
-          className="px-5 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-white font-semibold shadow-md transition transform hover:-translate-y-0.5 cursor-pointer"
+          className="px-5 py-2 rounded-lg bg-[#fc2111] hover:bg-[#f13325] text-white font-semibold shadow-md transition transform hover:-translate-y-0.5 cursor-pointer"
         >
           Tiếp tục
         </button>

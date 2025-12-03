@@ -54,7 +54,8 @@ const Step1OwnerAccount = ({ data, setData, nextStep }) => {
         return;
       }
     } catch (error) {
-      if (error.data.errorCode && error.data.errorCode === "EMAIL_EXISTS") {
+      console.log("Error h: ", error);
+      if (error.errorCode && error.errorCode === "EMAIL_EXISTS") {
         toast.error("Email đã tồn tại");
       } else if (error.data.errorCode) {
         toast.error("Lỗi kiểm tra email: ", error.data.errorCode);
@@ -65,8 +66,8 @@ const Step1OwnerAccount = ({ data, setData, nextStep }) => {
   };
 
   return (
-    <div className="w-full max-w-none rounded-2xl border m-2 border-gray-100 bg-white p-[50px] shadow-lg md:px-12 lg:px-24 xl:px-32">
-      <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+    <div className="w-full max-w-none rounded-2xl border  border-gray-100 bg-white p-[50px] shadow-lg md:px-12 lg:px-24 xl:px-32">
+      <h2 className="text-xl font-semibold text-center text-gray-800 mb-6">
         Nhập thông tin tài khoản
       </h2>
 
@@ -200,7 +201,7 @@ const Step1OwnerAccount = ({ data, setData, nextStep }) => {
 
       <button
         onClick={handleNext}
-        className="w-full mt-6 bg-yellow-500 hover:bg-yellow-400 text-white font-semibold py-2 rounded-lg shadow-md transition transform hover:-translate-y-0.5 cursor-pointer"
+        className="w-full mt-6 bg-[#fc2111] text-white font-semibold py-2 rounded-lg shadow-md transition transform hover:-translate-y-0.5 cursor-pointer"
       >
         Tiếp tục
       </button>

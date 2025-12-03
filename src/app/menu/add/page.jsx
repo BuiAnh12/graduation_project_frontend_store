@@ -181,7 +181,6 @@ const CreateDish = () => {
       tasteTags: Array.from(selectedTags.taste),
       cookingMethodtags: Array.from(selectedTags.cookingMethod),
       cultureTags: Array.from(selectedTags.culture),
-      stockStatus: "available",
       stockCount: -1,
       toppingGroupIds: Array.from(selectedToppings),
     };

@@ -10,37 +10,44 @@ const steps = [
 
 const StepRegister = ({ currentStep = 0 }) => {
   return (
-    <ol className="flex flex-col sm:flex-row justify-between items-center w-full space-y-6 sm:space-y-0 sm:space-x-0 mb-6">
-      {steps.map((step, index) => {
-        const isActive = index === currentStep;
-        const isCompleted = index < currentStep;
+    <div className="bg-white p-4 rounded-2xl shadow-lg mb-4">
+      <h1 className="text-center text-lg font-bold mb-6">Đăng ký cửa hàng</h1>
 
-        return (
-          <li key={index} className="flex-1 flex items-center">
-            <div className="flex items-center w-full relative">
-              {/* Line (except first item) */}
+      <ol className="flex flex-col sm:flex-row justify-between items-center w-full space-y-6 sm:space-y-0">
+        {steps.map((step, index) => {
+          const isActive = index === currentStep;
+          const isCompleted = index < currentStep;
+
+          return (
+            <li
+              key={index}
+              className="relative flex-1 flex items-center justify-center"
+            >
+              {/* Line trái */}
               {index > 0 && (
-                <div
-                  className={`flex-grow h-1 ${
-                    isCompleted ? "bg-blue-600" : "bg-gray-300"
-                  }`}
+                <span
+                  className={`absolute left-0 top-1/2 -translate-y-1/2 hidden sm:block h-1 w-1/2 
+                ${isCompleted ? "bg-blue-600" : "bg-gray-300"}`}
                 />
               )}
 
-              {/* Circle + Content */}
-              <div className="flex items-center space-x-2">
+              {/* Circle */}
+              <div className="flex flex-col items-center text-center">
                 <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 text-sm font-semibold transition-all duration-300 ${
-                    isActive
-                      ? "border-blue-600 bg-blue-100 text-blue-600"
-                      : isCompleted
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-gray-300 text-gray-500 bg-white"
-                  }`}
+                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300
+                ${
+                  isActive
+                    ? "border-blue-600 bg-blue-100 text-blue-600"
+                    : isCompleted
+                    ? "border-blue-600 bg-blue-600 text-white"
+                    : "border-gray-300 bg-white text-gray-500"
+                }`}
                 >
                   {index + 1}
                 </div>
-                <div className="hidden sm:block">
+
+                {/* Text */}
+                <div className="hidden sm:block mt-2">
                   <div
                     className={`text-sm font-medium ${
                       isActive
@@ -58,15 +65,18 @@ const StepRegister = ({ currentStep = 0 }) => {
                 </div>
               </div>
 
-              {/* Line (for the current item except last) */}
+              {/* Line phải */}
               {index < steps.length - 1 && (
-                <div className="flex-grow h-1 bg-gray-300 ml-2 hidden sm:block"></div>
+                <span
+                  className={`absolute right-0 top-1/2 -translate-y-1/2 hidden sm:block h-1 w-1/2 
+                ${index < currentStep ? "bg-blue-600" : "bg-gray-300"}`}
+                />
               )}
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 };
 

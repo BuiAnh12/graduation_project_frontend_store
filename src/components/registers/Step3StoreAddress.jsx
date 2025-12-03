@@ -82,8 +82,8 @@ const Step3StoreAddress = ({ data, setData, nextStep, prevStep }) => {
     data?.location?.coordinates?.[1];
 
   return (
-    <div className="text-black bg-white p-4 m-4 rounded-lg">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+    <div className="text-black bg-white p-4 rounded-lg">
+      <h2 className="text-xl font-bold text-center text-gray-800 my-4">
         Địa chỉ cửa hàng
       </h2>
       <div className="p-6">
@@ -129,7 +129,7 @@ const Step3StoreAddress = ({ data, setData, nextStep, prevStep }) => {
               if (validateStep()) nextStep();
               else toast.error("Vui lòng điền đầy đủ thông tin!");
             }}
-            className="px-5 py-2 rounded-lg bg-yellow-500 text-white hover:bg-yellow-400 font-semibold transition cursor-pointer"
+            className="px-5 py-2 rounded-lg bg-[#fc2111] hover:bg-[#f13325] text-white font-semibold transition cursor-pointer"
           >
             Tiếp theo
           </button>
