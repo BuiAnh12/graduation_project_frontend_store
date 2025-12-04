@@ -15,6 +15,7 @@ const EditVoucher = ({ voucherData, onClose, onSubmit }) => {
     userLimit: "",
   });
 
+  // Khởi tạo/cập nhật formData khi voucherData thay đổi
   useEffect(() => {
     if (voucherData) {
       setFormData({
@@ -22,9 +23,11 @@ const EditVoucher = ({ voucherData, onClose, onSubmit }) => {
         code: voucherData.code || "",
         description: voucherData.description || "",
         discountType: voucherData.discountType || "",
+        // Giữ nguyên giá trị cũ để hiển thị trên input
         discountValue: voucherData.discountValue || "",
         maxDiscount: voucherData.maxDiscount || "",
         minOrderAmount: voucherData.minOrderAmount || "",
+        // Format lại ISO date thành datetime-local format
         startDate: voucherData.startDate
           ? voucherData.startDate.slice(0, 16)
           : "",
@@ -37,28 +40,120 @@ const EditVoucher = ({ voucherData, onClose, onSubmit }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const val = e.target.type === "number" ? Math.max(0, Number(value)) : value;
-    setFormData((prev) => ({ ...prev, [name]: val }));
+    let val = value;
+
+    // Logic: Xử lý input number (cho phép rỗng và không âm)
+    if (e.target.type === "number") {
+      const numValue = Number(value);
+      // Giữ val là chuỗi rỗng nếu input rỗng, hoặc là giá trị không âm
+      val = value === "" ? "" : Math.max(0, numValue);
+    }
+
+    // Xử lý khi thay đổi discountType
+    if (name === "discountType") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: val,
+        // Nếu chuyển sang FIXED, xóa giá trị maxDiscount khỏi state
+        maxDiscount: val === "FIXED" ? "" : prev.maxDiscount,
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: val }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.discountType === "PERCENTAGE" && formData.discountValue > 100) {
-      alert("Giá trị phần trăm không được vượt quá 100%");
-      return;
+
+    const data = formData;
+
+    // --- BẮT ĐẦU VALIDATION ---
+    const requiredFields = {
+      code: "Mã code",
+      description: "Mô tả",
+      discountType: "Loại giảm giá",
+      discountValue: "Giá trị giảm",
+      startDate: "Ngày bắt đầu",
+      endDate: "Ngày kết thúc",
+      usageLimit: "Số lượng",
+      userLimit: "Tối đa cho mỗi người dùng",
+    };
+
+    // 1. Kiểm tra các trường bắt buộc chung
+    for (const [key, label] of Object.entries(requiredFields)) {
+      if (!data[key] || (typeof data[key] === 'string' && data[key].trim() === "")) {
+        // Lưu ý: Thay alert() bằng custom modal trong môi trường sản phẩm
+        alert(`Vui lòng nhập ${label}.`);
+        return;
+      }
     }
 
-    onSubmit({
-      ...formData,
-      discountValue: Number(formData.discountValue),
-      maxDiscount: Number(formData.maxDiscount),
-      minOrderAmount: Number(formData.minOrderAmount),
-      usageLimit: Number(formData.usageLimit),
-      userLimit: Number(formData.userLimit),
-      startDate: new Date(formData.startDate).toISOString(),
-      endDate: new Date(formData.endDate).toISOString(),
-    });
+    // 2. Validate Giá trị giảm (Discount Value)
+    const discountValueNum = Number(data.discountValue);
+    if (data.discountType === "PERCENTAGE") {
+        if (discountValueNum > 100 || discountValueNum <= 0) {
+            alert("Giá trị phần trăm phải nằm trong khoảng 1% đến 100%.");
+            return;
+        }
+    } else if (data.discountType === "FIXED") {
+        if (discountValueNum < 0) {
+            alert("Giá trị giảm (VNĐ) không được âm.");
+            return;
+        }
+    }
+
+    // 3. Validate Giảm tối đa (Max Discount - Bắt buộc cho PERCENTAGE)
+    if (data.discountType === "PERCENTAGE") {
+      const maxDiscountNum = Number(data.maxDiscount);
+      if (isNaN(maxDiscountNum) || maxDiscountNum < 0 || String(data.maxDiscount).trim() === "") {
+        alert("Vui lòng nhập Giảm tối đa (VNĐ) và phải là số không âm.");
+        return;
+      }
+    }
+    
+    // 4. Validate Phạm vi Ngày
+    const start = new Date(data.startDate);
+    const end = new Date(data.endDate);
+
+    if (start >= end) {
+        alert("Ngày kết thúc phải lớn hơn Ngày bắt đầu.");
+        return;
+    }
+
+    // 5. Validate Giới hạn (đã có min="1" trên UI, kiểm tra lại để chắc chắn)
+    if (Number(data.usageLimit) < 1 || Number(data.userLimit) < 1) {
+        alert("Số lượng và giới hạn người dùng phải lớn hơn hoặc bằng 1.");
+        return;
+    }
+    
+    // --- KẾT THÚC VALIDATION ---
+
+
+    // 2. Chuẩn bị dữ liệu gửi đi
+    const finalData = {
+      ...data,
+      discountValue: discountValueNum,
+      // minOrderAmount là trường tùy chọn (không bắt buộc trên UI)
+      minOrderAmount: Number(data.minOrderAmount) || 0,
+      usageLimit: Number(data.usageLimit),
+      userLimit: Number(data.userLimit),
+      startDate: start.toISOString(),
+      endDate: end.toISOString(),
+    };
+
+    // 3. Xử lý maxDiscount: chỉ gửi nếu không phải là FIXED
+    if (data.discountType !== "FIXED") {
+      finalData.maxDiscount = Number(data.maxDiscount); 
+    } else {
+      // Đảm bảo không gửi maxDiscount nếu là FIXED
+      delete finalData.maxDiscount;
+    }
+
+    onSubmit(finalData);
   };
+
+  // Biến kiểm tra để disable trường Giảm tối đa
+  const isMaxDiscountDisabled = formData.discountType === "FIXED";
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
@@ -154,8 +249,13 @@ const EditVoucher = ({ voucherData, onClose, onSubmit }) => {
                 name="maxDiscount"
                 value={formData.maxDiscount}
                 onChange={handleChange}
-                className="border rounded-lg w-full p-2 focus:ring-2 focus:ring-blue-400 outline-none"
-                placeholder="Nhập giảm tối đa (VNĐ)"
+                disabled={isMaxDiscountDisabled} // Vô hiệu hóa khi là FIXED
+                className={`border rounded-lg w-full p-2 focus:ring-2 focus:ring-blue-400 outline-none ${
+                  isMaxDiscountDisabled ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
+                placeholder={isMaxDiscountDisabled ? "Không áp dụng" : "Nhập giảm tối đa (VNĐ)"}
+                // required chỉ áp dụng khi không bị disable (PERCENTAGE)
+                required={!isMaxDiscountDisabled && formData.discountType === "PERCENTAGE"}
               />
             </div>
 

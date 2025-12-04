@@ -6,7 +6,7 @@ const AddVoucher = ({ onClose, onSubmit }) => {
     description: "",
     discountType: "",
     discountValue: "",
-    maxDiscount: "",
+    maxDiscount: "", // Giữ nguyên trong state để quản lý input
     minOrderAmount: "",
     startDate: "",
     endDate: "",
@@ -16,34 +16,64 @@ const AddVoucher = ({ onClose, onSubmit }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Đảm bảo number không âm
-    const val = e.target.type === "number" ? Math.max(0, Number(value)) : value;
-    setFormData((prev) => ({ ...prev, [name]: val }));
+    let val = value;
+
+    // Logic: Đảm bảo number không âm và xử lý trường hợp input rỗng
+    if (e.target.type === "number") {
+      const numValue = Number(value);
+      val = value === "" ? "" : Math.max(0, numValue);
+    }
+
+    // Xử lý khi thay đổi discountType
+    if (name === "discountType") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: val,
+        // Nếu chuyển sang FIXED, xóa giá trị maxDiscount
+        maxDiscount: val === "FIXED" ? "" : prev.maxDiscount,
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: val }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Nếu là phần trăm mà >100 → báo lỗi
+    // 1. Validation cho PERCENTAGE
     if (
       formData.discountType === "PERCENTAGE" &&
-      formData.discountValue > 100
+      Number(formData.discountValue) > 100
     ) {
       alert("Giá trị phần trăm không được vượt quá 100%");
       return;
     }
 
-    onSubmit({
+    // 2. Chuẩn bị dữ liệu gửi đi (loại bỏ maxDiscount nếu là FIXED)
+    const finalData = {
       ...formData,
       discountValue: Number(formData.discountValue),
-      maxDiscount: Number(formData.maxDiscount),
       minOrderAmount: Number(formData.minOrderAmount),
       usageLimit: Number(formData.usageLimit),
       userLimit: Number(formData.userLimit),
       startDate: new Date(formData.startDate).toISOString(),
       endDate: new Date(formData.endDate).toISOString(),
-    });
+    };
+
+    // Chỉ thêm maxDiscount nếu không phải là FIXED
+    if (formData.discountType !== "FIXED") {
+      // Đảm bảo chuyển đổi sang Number nếu không phải FIXED (chỉ áp dụng cho PERCENTAGE)
+      finalData.maxDiscount = Number(formData.maxDiscount);
+    } else {
+      // Đảm bảo không gửi maxDiscount nếu là FIXED
+      delete finalData.maxDiscount;
+    }
+
+    onSubmit(finalData);
   };
+
+  // Biến kiểm tra để disable trường Giảm tối đa
+  const isMaxDiscountDisabled = formData.discountType === "FIXED";
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
@@ -126,7 +156,7 @@ const AddVoucher = ({ onClose, onSubmit }) => {
             </div>
           </div>
 
-          {/* MAX DISCOUNT & MIN ORDER */}
+          {/* MAX DISCOUNT & MIN ORDER - Đã chỉnh sửa để disable */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <label className="block text-sm font-medium mb-1">
@@ -137,8 +167,20 @@ const AddVoucher = ({ onClose, onSubmit }) => {
                 name="maxDiscount"
                 value={formData.maxDiscount}
                 onChange={handleChange}
-                className="border rounded-lg w-full p-2 focus:ring-2 focus:ring-blue-400 outline-none"
-                placeholder="Nhập giảm tối đa (VNĐ)"
+                disabled={isMaxDiscountDisabled} // Vô hiệu hóa khi là FIXED
+                className={`border rounded-lg w-full p-2 focus:ring-2 focus:ring-blue-400 outline-none ${
+                  isMaxDiscountDisabled ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
+                placeholder={
+                  isMaxDiscountDisabled
+                    ? "Không áp dụng"
+                    : "Nhập giảm tối đa (VNĐ)"
+                }
+                // required chỉ áp dụng khi nó KHÔNG bị disable (PERCENTAGE)
+                required={
+                  !isMaxDiscountDisabled &&
+                  formData.discountType === "PERCENTAGE"
+                }
               />
             </div>
 
