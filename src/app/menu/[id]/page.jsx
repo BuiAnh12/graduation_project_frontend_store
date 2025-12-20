@@ -27,7 +27,8 @@ const DishForm = () => {
   const router = useRouter();
   const { id } = useParams(); // ✅ id trong route
   const [storeId] = useState(localStorageService.getStoreId());
-
+  const [stockMode, setStockMode] = useState("limited");
+  // "limited" | "unlimited"
   const [loading, setLoading] = useState(false);
   const [allToppings, setAllToppings] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
@@ -110,6 +111,8 @@ const DishForm = () => {
         taste: new Set(data.tasteTags?.map((tag) => tag._id) || []),
       });
 
+      setStockMode(data.stockCount === -1 ? "unlimited" : "limited");
+
       // New API returns toppingGroups (each group has _id). Use group ids as selected topping groups.
       if (Array.isArray(data.toppingGroups)) {
         setSelectedToppings(new Set(data.toppingGroups.map((g) => g._id)));
@@ -185,8 +188,8 @@ const DishForm = () => {
       toast.error("Vui lòng nhập tên món ăn");
       return;
     }
-    if (!formData.stockCount) {
-      toast.error("Vui lòng nhập số lượng");
+    if (stockMode === "limited" && formData.stockCount < 0) {
+      toast.error("Số lượng phải >= 0");
       return;
     }
     if (!formData.price || isNaN(Number(formData.price))) {
@@ -303,7 +306,7 @@ const DishForm = () => {
     }
   };
 
-  const USE_IMAGE = false;
+  const USE_IMAGE = true;
   const USE_TEXT = true;
   const handleAutoTag = async () => {
     if (!imageFile && USE_IMAGE) {
@@ -371,6 +374,10 @@ const DishForm = () => {
   };
 
   const handleSuggestDescription = async () => {
+    if (!formData.name || formData.name.trim() === "") {
+      toast.error("Vui lòng nhập tên sản phẩm trước khi tạo mô tả!");
+      return;
+    }
     try {
       toast.info("Đang tạo mô tả mới...");
       const payload = {
@@ -439,18 +446,46 @@ const DishForm = () => {
               </button>
             </div>
 
-            <div className="flex justify-between mt-4 items-center">
-              <label className="flex-1 block text-sm font-semibold text-gray-700">
+            <div className="mt-4 space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
                 Số phần còn lại
               </label>
-              <input
-                type="number"
-                name="stockCount"
-                value={formData.stockCount}
-                min="0"
-                onChange={handleChange}
-                className="flex-1 p-2 ring-1 ring-gray-300 my-2 rounded-md outline-none focus:ring-[#fc6011]"
-              />
+
+              <div className="flex md:flex-row flex-col gap-4">
+                {/* Select */}
+                <select
+                  value={stockMode}
+                  onChange={(e) => {
+                    const mode = e.target.value;
+                    setStockMode(mode);
+                    setFormData((prev) => ({
+                      ...prev,
+                      stockCount: mode === "unlimited" ? -1 : 0,
+                    }));
+                  }}
+                  className="w-full p-2 ring-1 ring-gray-300 rounded-md border"
+                >
+                  <option value="limited">Có giới hạn</option>
+                  <option value="unlimited">Không giới hạn</option>
+                </select>
+
+                {/* Input chỉ hiện khi có giới hạn */}
+                {stockMode === "limited" && (
+                  <input
+                    type="number"
+                    min={0}
+                    value={formData.stockCount}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        stockCount: Math.max(0, Number(e.target.value)),
+                      }))
+                    }
+                    className="w-full p-2 ring-1 ring-gray-300 rounded-md outline-none focus:ring-[#fc6011]"
+                    placeholder="Nhập số lượng"
+                  />
+                )}
+              </div>
             </div>
           </div>
 

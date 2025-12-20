@@ -266,7 +266,14 @@ const CreateDish = () => {
 
   const handleSuggestDescription = async () => {
     try {
+  
+      if (!formData.name || formData.name.trim() === "") {
+        toast.error("Vui lòng nhập tên sản phẩm trước khi tạo mô tả!");
+        return; 
+      }
+
       toast.info("Đang tạo mô tả mới...");
+
       const payload = {
         name: formData.name,
         description: formData.description,
@@ -454,7 +461,7 @@ const CreateDish = () => {
               <p className="text-gray-500">Không có topping nào</p>
             )}
           </div>
-          
+
           <div className="flex justify-between">
             <p className="text-lg font-semibold">Tags</p>
             <button
