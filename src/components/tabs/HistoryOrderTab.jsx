@@ -131,7 +131,7 @@ const HistoryOrder = ({ storeId }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const ordersPerPage = 10;
+  const ordersPerPage = 5;
 
   const fetchOrders = async () => {
     try {
@@ -150,8 +150,15 @@ const HistoryOrder = ({ storeId }) => {
         page: currentPage,
       });
 
-      setOrders(res?.data?.data ?? []);
-      setTotalPages(res?.totalPages || 1);
+      // Cấu trúc đúng dựa trên JSON bạn gửi:
+      // res.data là object chứa totalPages
+      // res.data.data là mảng các order
+      const responseData = res?.data;
+
+      if (responseData) {
+        setOrders(responseData.data ?? []);
+        setTotalPages(responseData.totalPages || 1);
+      }
     } catch (error) {
       console.error("Error loading orders:", error);
     } finally {

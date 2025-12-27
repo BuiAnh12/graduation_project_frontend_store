@@ -196,7 +196,7 @@ const VerifyOrderTab = ({ storeId }) => {
   const searchParams = useSearchParams();
 
   const dropdownOptions = ["Tất cả", "Đang chuẩn bị", "Đã thông báo tài xế"];
-  const ordersPerPage = 10;
+  const ordersPerPage = 5;
 
   const [selectedStatus, setSelectedStatus] = useState(() => {
     const fromStorage = localStorageService.getActiveFilter();
@@ -259,7 +259,9 @@ const VerifyOrderTab = ({ storeId }) => {
         ) || []
       );
 
-      setTotalPages(payload?.totalPages ?? payload?.totalPages === 0 ? 0 : 1);
+      setTotalPages(
+        payload?.data.totalPages ?? payload?.totalPages === 0 ? 0 : 1
+      );
     } catch (err) {
       console.error(err);
       setError("Không thể tải đơn hàng.");

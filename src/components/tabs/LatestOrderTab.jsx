@@ -193,7 +193,7 @@ const LatestOrder = ({ storeId }) => {
       console.log("RES: ", res);
 
       setOrders(res.data.data || []);
-      setTotalPages(res.totalPages || 1);
+      setTotalPages(res.data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
