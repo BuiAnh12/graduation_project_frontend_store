@@ -11,6 +11,12 @@ export default function OrderItemRow({
   onOpenToppings,
   onRemove,
 }) {
+  console.log("OrderItemRow props:", {
+    item,
+    catalog,
+  });
+
+  console.log("stockStatus:", catalog?.stockStatus);
   const catalogPrice = catalog?.price ?? item.dish?.price ?? item.price ?? 0;
   const toppingsSum = (item.toppings || []).reduce(
     (s, t) => s + (t.price || 0),
@@ -23,7 +29,7 @@ export default function OrderItemRow({
       {/* Top Section: Image + Details */}
       <div className="flex items-start gap-4">
         <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-gray-100 shrink-0">
-          {(catalog?.image?.url || item.dish?.image?.url) && (
+          {(catalog?.image?.url || item?.dish?.image?.url) && (
             <img
               src={catalog?.image?.url || item.dish?.image?.url}
               alt={item.dishName || catalog?.name || "Dish"}

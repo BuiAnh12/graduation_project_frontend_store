@@ -152,7 +152,7 @@ export default function OrderEditor() {
       };
 
       const res = await updateOrder({ orderId: order._id, updatedData });
-      toast.success(res?.message || "Cập nhật đơn hàng thành công");
+      toast.success("Cập nhật đơn hàng thành công");
       setConfirmSaveOpen(false);
       router.push(`/orders/${order._id}`);
     } catch (e) {

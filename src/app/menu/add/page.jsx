@@ -197,7 +197,7 @@ const CreateDish = () => {
       );
     }
   };
-  const USE_IMAGE = false;
+  const USE_IMAGE = true;
   const USE_TEXT = true;
   const handleAutoTag = async () => {
     if (!imageFile && USE_IMAGE) {

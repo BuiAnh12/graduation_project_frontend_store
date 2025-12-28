@@ -57,6 +57,16 @@ const Header = ({ title: propTitle, goBack }) => {
       </div>
 
       <div className="flex items-center space-x-6">
+        <Link href="/home" className="relative hover:opacity-80">
+          <Image
+            src="/assets/home.png"
+            alt="Home"
+            width={22}
+            height={22}
+            className="cursor-pointer"
+          />
+        </Link>
+
         <Link
           href="/notifications"
           className="relative hover:opacity-80"

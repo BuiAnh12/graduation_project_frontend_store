@@ -40,11 +40,10 @@ export default function AddDishModal({ open, onClose, dishes, onAdd }) {
               >
                 <div className="w-12 h-12 relative rounded overflow-hidden bg-gray-100 shrink-0">
                   {d.image?.url ? (
-                    <Image
+                    <img
                       src={d.image.url}
                       alt={d.name}
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
                     />
                   ) : null}
                 </div>
